@@ -31,22 +31,6 @@ To explore reflection and produce a compact JSON summary similar to the example,
 - `example/example.zig:7` shows `slang.init()` and session/target setup.
 - `example/example.zig:71` compiles source via `slang.compileSource(...)` and converts reflection to a serializable `Entry` using helpers in `example/reflection.zig`.
 
-## Build Integration Notes
-
-This package defines both a Zig module and a library artifact named `slang` in `build.zig`. It also wires up C/C++ compilation for the small shim in `src/c/slangc.cpp` and links against the prebuilt Slang binaries.
-
-Common ways to consume:
-
-- Use this repo directly as your workspace dependency and import `slang` in your code. The example demonstrates linking the library artifact into an executable (see `build.zig:72` and `build.zig:87`).
-- If you add this repo as a dependency in another project’s `build.zig.zon`, import the module from the dependency and mirror the linking approach found in this repo’s `build.zig` (add include paths, link `slang`, ensure C++17 for the shim, and link the library artifact). Exact linking steps vary by your build graph; use this repo’s `build.zig` as a reference.
-
-Key bits you’ll likely need in your own build:
-
-- Link C and C++: `lib.linkLibC(); lib.linkLibCpp();`
-- Add the Slang include/lib/bin paths from the dependency.
-- Link the `slang` system library from the fetched SDK: `lib.linkSystemLibrary("slang");`
-- Ensure the Slang shared libraries are present at runtime; this repo copies them to the install `lib`/`bin` directories.
-
 ## Acknowledgements
 
 - Slang is developed by the Shader-Slang project. This package simply exposes its C API to Zig and adds a small set of convenience utilities for reflection.
