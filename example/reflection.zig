@@ -1,6 +1,5 @@
 pub const std = @import("std");
 pub const slang = @import("slang");
-pub const c = slang.c;
 
 pub const Reflection = slang.Reflection;
 pub const FunctionReflection = slang.FunctionReflection;
@@ -18,7 +17,7 @@ pub const Entry = struct {
     allocator: std.heap.FixedBufferAllocator,
 
     name: []const u8,
-    stage: c.Stage,
+    stage: slang.Stage,
     workerSize: [3]u64,
 
     function: Function,
@@ -90,7 +89,7 @@ pub const SlotBindings = union(enum) {
 
 pub const TypeLayout = union(enum) {
     Scalar: struct {
-        type: c.ScalarType,
+        type: slang.ScalarType,
     },
     Structure: struct {
         name: []const u8,
@@ -99,8 +98,8 @@ pub const TypeLayout = union(enum) {
     Resource: struct {
         name: []const u8,
         type: *Type,
-        access: c.ResourceAccess,
-        shape: c.ResourceShape,
+        access: slang.ResourceAccess,
+        shape: slang.ResourceShape,
     },
     Array: struct {
         name: []const u8,
@@ -145,12 +144,12 @@ pub const VariableLayout = struct {
     size: usize,
     stride: usize,
 
-    category: c.ParameterCategory,
+    category: slang.ParameterCategory,
 };
 
 pub const Type = union(enum) {
     Scalar: struct {
-        type: c.ScalarType,
+        type: slang.ScalarType,
         userAttributes: ?[]Attribute,
     },
 
@@ -163,8 +162,8 @@ pub const Type = union(enum) {
     Resource: struct {
         name: []const u8,
         result: *Type,
-        access: c.ResourceAccess,
-        shape: c.ResourceShape,
+        access: slang.ResourceAccess,
+        shape: slang.ResourceShape,
         userAttributes: ?[]Attribute,
     },
 
@@ -213,7 +212,7 @@ pub const Function = struct {
 
 pub const EntryPoint = struct {
     name: []const u8,
-    stage: c.Stage,
+    stage: slang.Stage,
     function: Function,
     parameters: []VariableLayout,
     varriableLayout: VariableLayout,

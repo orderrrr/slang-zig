@@ -5,21 +5,22 @@ const refl = @import("reflection.zig");
 
 pub fn main() !void {
     slang.init();
+    defer slang.deinit();
 
     const optimizationLevel = slang.CompilerOptionEntry.fromInt(.Optimization, @intFromEnum(slang.SlangOptimizationLevel.High));
     const spirv_target_version: []const u8 = "spirv_1_3";
-
     const target = slang.TargetDesc.fromSpec(.{
         .format = slang.CompileTarget.SPIRV,
-        .profile = slang.findProfile(spirv_target_version),
+        .profile = slang.findProfile(slang.gs, spirv_target_version),
     });
-
-    const sessionDesc = slang.SessionDesc{
+    const sessionDesc = slang.SessionDesc.fromSpec(.{
         .compilerOptionEntries = @ptrCast(@constCast(&optimizationLevel)),
         .compilerOptionEntryCount = 1,
         .targets = &target,
         .targetCount = 1,
-    };
+    });
+
+    const entry_point_name = "main";
 
     const shader_source =
         \\[__AttributeUsage(_AttributeTargets.Function)]
@@ -68,11 +69,62 @@ pub fn main() !void {
         \\}
     ;
 
-    const comp = try slang.compileSource(shader_source, sessionDesc, "main");
-    const reflection = comp.reflection;
+    var ss = std.mem.zeroes(slang.ISession);
+    assert(slang.createSession(slang.gs, &sessionDesc, &ss).isSuccess());
+    defer _ = slang.release(ss);
+
+    var diagnostics = std.mem.zeroes(slang.IBlob);
+    var module = std.mem.zeroes(slang.IModule);
+    if (!slang.loadModuleFromSourceString(ss, shader_source, &module, &diagnostics).isSuccess()) {
+        var diag: []const u8 = std.mem.zeroes([]const u8);
+        if (diagnostics != null) {
+            assert(slang.getBlobSlice(diagnostics, &diag).isSuccess());
+        }
+        std.log.err("Failed to compile source: {s}", .{diag});
+        return error.CompilationFailed;
+    }
+    defer _ = slang.release(diagnostics);
+    defer _ = slang.release(module);
+
+    var entry_point = std.mem.zeroes(slang.IEntryPoint);
+    assert(slang.findEntryPointByName(module, entry_point_name, &entry_point).isSuccess());
+    defer _ = slang.release(entry_point);
+
+    const types = [2]slang.IComponentType{ module, entry_point };
+
+    var composedProgram = std.mem.zeroes(slang.IComponentType);
+    assert(slang.createCompositeComponent(ss, &types, &composedProgram, &diagnostics).isSuccess());
+    defer _ = slang.release(composedProgram);
+
+    var linked_program = std.mem.zeroes(slang.IComponentType);
+    assert(slang.linkProgram(composedProgram, &linked_program, &diagnostics).isSuccess());
+    defer _ = slang.release(linked_program);
+
+    var layout = std.mem.zeroes(slang.ProgramLayout);
+    assert(slang.getLayout(linked_program, 0, &layout, &diagnostics).isSuccess());
+    defer _ = slang.release(layout);
+
+    var codeBlob = std.mem.zeroes(slang.IBlob);
+    assert(slang.getTargetCode(linked_program, &codeBlob, &diagnostics).isSuccess());
+    defer _ = slang.release(codeBlob);
+
+    var out: []const u8 = std.mem.zeroes([]const u8);
+    assert(slang.getBlobSlice(codeBlob, &out).isSuccess());
+
+    var entryPointMetadata = std.mem.zeroes(slang.IMetadata);
+    assert(slang.IComponentType_getEntryPointMetadata(linked_program, 0, 0, &entryPointMetadata, &diagnostics).isSuccess());
+    defer _ = slang.release(entryPointMetadata);
+
+    var diag: []const u8 = std.mem.zeroes([]const u8);
+    if (diagnostics != null) {
+        assert(slang.getBlobSlice(diagnostics, &diag).isSuccess());
+    }
+    defer _ = slang.release(diagnostics);
 
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
+
+    const reflection: slang.Reflection = .{ .ptr = layout, .metadata = entryPointMetadata };
 
     const reflectionObj = try refl.toEntry(&reflection, gpa.allocator());
     defer gpa.allocator().free(reflectionObj.allocator.buffer);

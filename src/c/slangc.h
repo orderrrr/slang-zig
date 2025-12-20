@@ -42,392 +42,399 @@ unsigned ProgramLayout_getParameterCount(ProgramLayout layout);
 
 unsigned ProgramLayout_getTypeParameterCount(ProgramLayout layout);
 
-TypeParameterReflection
+TypeParameterReflectionPtr
 ProgramLayout_getTypeParameterByIndex(ProgramLayout layout, unsigned index);
 
-TypeParameterReflection ProgramLayout_findTypeParameter(ProgramLayout layout,
-                                                        const char *name);
+TypeParameterReflectionPtr ProgramLayout_findTypeParameter(ProgramLayout layout,
+                                                           const char *name);
 
-VariableLayoutReflection ProgramLayout_getParameterByIndex(ProgramLayout layout,
-                                                           unsigned index);
+VariableLayoutReflectionPtr
+ProgramLayout_getParameterByIndex(ProgramLayout layout, unsigned index);
 
 SlangUInt ProgramLayout_getEntryPointCount(ProgramLayout layout);
 
-EntryPointReflection ProgramLayout_getEntryPointByIndex(ProgramLayout layout,
-                                                        SlangUInt index);
+EntryPointReflectionPtr ProgramLayout_getEntryPointByIndex(ProgramLayout layout,
+                                                           SlangUInt index);
 
 SlangUInt ProgramLayout_getGlobalConstantBufferBinding(ProgramLayout layout);
 
 size_t ProgramLayout_getGlobalConstantBufferSize(ProgramLayout layout);
 
-TypeReflection ProgramLayout_findTypeByName(ProgramLayout layout,
-                                            const char *name);
+TypeReflectionPtr ProgramLayout_findTypeByName(ProgramLayout layout,
+                                               const char *name);
 
-FunctionReflection ProgramLayout_findFunctionByName(ProgramLayout layout,
-                                                    const char *name);
+FunctionReflectionPtr ProgramLayout_findFunctionByName(ProgramLayout layout,
+                                                       const char *name);
 
-FunctionReflection ProgramLayout_findFunctionByNameInType(ProgramLayout layout,
-                                                          TypeReflection inType,
-                                                          const char *name);
+FunctionReflectionPtr ProgramLayout_findFunctionByNameInType(
+    ProgramLayout layout, TypeReflectionPtr inType, const char *name);
 
-VariableReflection ProgramLayout_findVarByNameInType(ProgramLayout layout,
-                                                     TypeReflection inType,
-                                                     const char *name);
+VariableReflectionPtr
+ProgramLayout_findVarByNameInType(ProgramLayout layout,
+                                  TypeReflectionPtr inType, const char *name);
 
-TypeLayoutReflection
-ProgramLayout_getTypeLayout(ProgramLayout layout, TypeReflection inType,
+TypeLayoutReflectionPtr
+ProgramLayout_getTypeLayout(ProgramLayout layout, TypeReflectionPtr inType,
                             SlangLayoutRulesIntegral layoutRules);
 
-EntryPointReflection
+EntryPointReflectionPtr
 ProgramLayout_findEntryPointReflectionByName(ProgramLayout layout,
                                              const char *name);
 
-TypeReflection
-ProgramLayout_specializeType(ProgramLayout layout, TypeReflection inType,
+TypeReflectionPtr
+ProgramLayout_specializeType(ProgramLayout layout, TypeReflectionPtr inType,
                              SlangInt specialiazationArgCount,
-                             TypeReflection const *specialiazationArgs,
+                             TypeReflectionPtr const *specialiazationArgs,
                              IBlob *outDiagnostics);
 
-GenericReflection ProgramLayout_specializeGeneric(
-    ProgramLayout layout, GenericReflection inGeneric,
+GenericReflectionPtr ProgramLayout_specializeGeneric(
+    ProgramLayout layout, GenericReflectionPtr inGeneric,
     SlangInt specializationArgCount,
     enum GenericArgType const *inSpecialiazationArgTypes,
     union GenericArgReflection const *inSpecializationArgVals,
     IBlob *outDiagnostics);
 
-bool ProgramLayout_isSubType(ProgramLayout layout, TypeReflection inSubType,
-                             TypeReflection inSuperType);
+bool ProgramLayout_isSubType(ProgramLayout layout, TypeReflectionPtr inSubType,
+                             TypeReflectionPtr inSuperType);
 
 SlangUInt ProgramLayout_getHashedStringCount(ProgramLayout layout);
 
 const char *ProgramLayout_getHashedString(ProgramLayout layout, SlangUInt index,
                                           size_t *outCount);
 
-TypeLayoutReflection
+TypeLayoutReflectionPtr
 ProgramLayout_getGlobalParamsTypeLayout(ProgramLayout layout);
 
-VariableLayoutReflection
+VariableLayoutReflectionPtr
 ProgramLayout_getGlobalParamsVarLayout(ProgramLayout layout);
 
-VariableReflection
-VariableLayoutReflection_getVariable(VariableLayoutReflection layout);
-
-char const *VariableLayoutReflection_getName(VariableLayoutReflection layout);
-
-Modifier VariableLayoutReflection_findModifier(VariableLayoutReflection layout,
-                                               ModifierIDIntegral id);
-
-TypeLayoutReflection
-VariableLayoutReflection_getTypeLayout(VariableLayoutReflection layout);
-
-ParameterCategoryIntegral
-VariableLayoutReflection_getCategory(VariableLayoutReflection layout);
-
-unsigned int
-VariableLayoutReflection_getCategoryCount(VariableLayoutReflection layout);
-
-ParameterCategoryIntegral
-VariableLayoutReflection_getCategoryByIndex(VariableLayoutReflection layout,
-                                            unsigned int index);
-
-size_t VariableLayoutReflection_getOffset(VariableLayoutReflection layout,
-                                          ParameterCategoryIntegral category);
-
-TypeReflection
-VariableLayoutReflection_getType(VariableLayoutReflection layout);
-
-unsigned
-VariableLayoutReflection_getBindingIndex(VariableLayoutReflection layout);
-
-unsigned
-VariableLayoutReflection_getBindingSpace(VariableLayoutReflection layout);
-
-size_t VariableLayoutReflection_getBindingSpaceByCategory(
-    VariableLayoutReflection layout, ParameterCategoryIntegral category);
-
-SlangImageFormatIntegral
-VariableLayoutReflection_getImageFormat(VariableLayoutReflection layout);
+VariableReflectionPtr
+VariableLayoutReflection_getVariable(VariableLayoutReflectionPtr layout);
 
 char const *
-VariableLayoutReflection_getSemanticName(VariableLayoutReflection layout);
+VariableLayoutReflection_getName(VariableLayoutReflectionPtr layout);
+
+Modifier
+VariableLayoutReflection_findModifier(VariableLayoutReflectionPtr layout,
+                                      ModifierIDIntegral id);
+
+TypeLayoutReflectionPtr
+VariableLayoutReflection_getTypeLayout(VariableLayoutReflectionPtr layout);
+
+ParameterCategoryIntegral
+VariableLayoutReflection_getCategory(VariableLayoutReflectionPtr layout);
+
+unsigned int
+VariableLayoutReflection_getCategoryCount(VariableLayoutReflectionPtr layout);
+
+ParameterCategoryIntegral
+VariableLayoutReflection_getCategoryByIndex(VariableLayoutReflectionPtr layout,
+                                            unsigned int index);
+
+size_t VariableLayoutReflection_getOffset(VariableLayoutReflectionPtr layout,
+                                          ParameterCategoryIntegral category);
+
+TypeReflectionPtr
+VariableLayoutReflection_getType(VariableLayoutReflectionPtr layout);
+
+unsigned
+VariableLayoutReflection_getBindingIndex(VariableLayoutReflectionPtr layout);
+
+unsigned
+VariableLayoutReflection_getBindingSpace(VariableLayoutReflectionPtr layout);
+
+size_t VariableLayoutReflection_getBindingSpaceByCategory(
+    VariableLayoutReflectionPtr layout, ParameterCategoryIntegral category);
+
+SlangImageFormatIntegral
+VariableLayoutReflection_getImageFormat(VariableLayoutReflectionPtr layout);
+
+char const *
+VariableLayoutReflection_getSemanticName(VariableLayoutReflectionPtr layout);
 
 size_t
-VariableLayoutReflection_getSemanticIndex(VariableLayoutReflection layout);
+VariableLayoutReflection_getSemanticIndex(VariableLayoutReflectionPtr layout);
 
 SlangStageIntegral
-VariableLayoutReflection_getSlangStage(VariableLayoutReflection layout);
+VariableLayoutReflection_getSlangStage(VariableLayoutReflectionPtr layout);
 
-SlangTypeKindIntegral TypeReflection_getKind(TypeReflection type);
+SlangTypeKindIntegral TypeReflection_getKind(TypeReflectionPtr type);
 
-unsigned int TypeReflection_getFieldCount(TypeReflection type);
+unsigned int TypeReflection_getFieldCount(TypeReflectionPtr type);
 
-VariableLayoutReflection TypeReflection_getFieldByIndex(TypeReflection type,
-                                                        unsigned int index);
+VariableLayoutReflectionPtr
+TypeReflection_getFieldByIndex(TypeReflectionPtr type, unsigned int index);
 
-bool TypeReflection_isArray(TypeReflection type);
+bool TypeReflection_isArray(TypeReflectionPtr type);
 
-TypeReflection TypeReflection_unwrapArray(TypeReflection type);
+TypeReflectionPtr TypeReflection_unwrapArray(TypeReflectionPtr type);
 
-size_t TypeReflection_getElementCount(TypeReflection type);
+size_t TypeReflection_getElementCount(TypeReflectionPtr type);
 
-size_t TypeReflection_getTotalArrayElementCount(TypeReflection type);
+size_t TypeReflection_getTotalArrayElementCount(TypeReflectionPtr type);
 
-TypeReflection TypeReflection_getElementType(TypeReflection type);
+TypeReflectionPtr TypeReflection_getElementType(TypeReflectionPtr type);
 
-unsigned TypeReflection_getRowCount(TypeReflection type);
+unsigned TypeReflection_getRowCount(TypeReflectionPtr type);
 
-unsigned TypeReflection_getColumnCount(TypeReflection type);
+unsigned TypeReflection_getColumnCount(TypeReflectionPtr type);
 
-SlangScalarTypeIntegral TypeReflection_getScalarType(TypeReflection type);
+SlangScalarTypeIntegral TypeReflection_getScalarType(TypeReflectionPtr type);
 
-TypeReflection TypeReflection_getResourceResultType(TypeReflection type);
+TypeReflectionPtr TypeReflection_getResourceResultType(TypeReflectionPtr type);
 
-SlangResourceShapeIntegral TypeReflection_getResourceShape(TypeReflection type);
+SlangResourceShapeIntegral
+TypeReflection_getResourceShape(TypeReflectionPtr type);
 
 SlangResourceAccessIntegral
-TypeReflection_getResourceAccess(TypeReflection type);
+TypeReflection_getResourceAccess(TypeReflectionPtr type);
 
-char const *TypeReflection_getName(TypeReflection type);
+char const *TypeReflection_getName(TypeReflectionPtr type);
 
-unsigned int TypeReflection_getUserAttributeCount(TypeReflection type);
+unsigned int TypeReflection_getUserAttributeCount(TypeReflectionPtr type);
 
-Attribute TypeReflection_getUserAttributeByIndex(TypeReflection type,
+Attribute TypeReflection_getUserAttributeByIndex(TypeReflectionPtr type,
                                                  unsigned int index);
 
-Attribute TypeReflection_findUserAttributeByName(TypeReflection type,
+Attribute TypeReflection_findUserAttributeByName(TypeReflectionPtr type,
                                                  char const *name);
 
-Attribute TypeReflection_findAttributeByName(TypeReflection type,
+Attribute TypeReflection_findAttributeByName(TypeReflectionPtr type,
                                              char const *name);
 
-GenericReflection TypeReflection_getGenericCountainer(TypeReflection type);
+GenericReflectionPtr
+TypeReflection_getGenericCountainer(TypeReflectionPtr type);
 
-char const *VariableReflection_getName(VariableReflection variable);
+char const *VariableReflection_getName(VariableReflectionPtr variable);
 
-TypeReflection VariableReflection_getType(VariableReflection variable);
+TypeReflectionPtr VariableReflection_getType(VariableReflectionPtr variable);
 
-Modifier VariableReflection_findModifier(VariableReflection variable,
+Modifier VariableReflection_findModifier(VariableReflectionPtr variable,
                                          ModifierIDIntegral id);
 
 unsigned int
-VariableReflection_getUserAttributeCount(VariableReflection variable);
+VariableReflection_getUserAttributeCount(VariableReflectionPtr variable);
 
 Attribute
-VariableReflection_getUserAttributeByIndex(VariableReflection variable,
+VariableReflection_getUserAttributeByIndex(VariableReflectionPtr variable,
                                            unsigned int index);
 
-Attribute VariableReflection_findAttributeByName(VariableReflection variable,
+Attribute VariableReflection_findAttributeByName(VariableReflectionPtr variable,
                                                  IGlobalSession inSession,
                                                  char const *name);
 
 Attribute VariableReflection_findUserAttributeByName(
-    VariableReflection variable, IGlobalSession inSession, char const *name);
+    VariableReflectionPtr variable, IGlobalSession inSession, char const *name);
 
-bool VariableReflection_hasDefaultValue(VariableReflection variable);
+bool VariableReflection_hasDefaultValue(VariableReflectionPtr variable);
 
-SlangResult VariableReflection_getDefaultValue(VariableReflection variable,
+SlangResult VariableReflection_getDefaultValue(VariableReflectionPtr variable,
                                                int64_t *value);
 
-GenericReflection
-VariableReflection_getGenericContainer(VariableReflection variable);
+GenericReflectionPtr
+VariableReflection_getGenericContainer(VariableReflectionPtr variable);
 
-VariableReflection
-VariableReflection_applySpecializations(VariableReflection variable,
-                                        GenericReflection inGeneric);
+VariableReflectionPtr
+VariableReflection_applySpecializations(VariableReflectionPtr variable,
+                                        GenericReflectionPtr inGeneric);
 
-TypeReflection TypeLayoutReflection_getType(TypeLayoutReflection layout);
+TypeReflectionPtr TypeLayoutReflection_getType(TypeLayoutReflectionPtr layout);
 
-SlangTypeKindIntegral TypeLayoutReflection_getKind(TypeLayoutReflection layout);
+SlangTypeKindIntegral
+TypeLayoutReflection_getKind(TypeLayoutReflectionPtr layout);
 
-size_t TypeLayoutReflection_getSize(TypeLayoutReflection layout,
+size_t TypeLayoutReflection_getSize(TypeLayoutReflectionPtr layout,
                                     ParameterCategoryIntegral category);
 
-size_t TypeLayoutReflection_getStride(TypeLayoutReflection layout,
+size_t TypeLayoutReflection_getStride(TypeLayoutReflectionPtr layout,
                                       ParameterCategoryIntegral category);
 
-int32_t TypeLayoutReflection_getAlignment(TypeLayoutReflection layout,
+int32_t TypeLayoutReflection_getAlignment(TypeLayoutReflectionPtr layout,
                                           ParameterCategoryIntegral category);
 
-unsigned int TypeLayoutReflection_getFieldCount(TypeLayoutReflection layout);
+unsigned int TypeLayoutReflection_getFieldCount(TypeLayoutReflectionPtr layout);
 
-VariableLayoutReflection
-TypeLayoutReflection_getFieldByIndex(TypeLayoutReflection layout,
+VariableLayoutReflectionPtr
+TypeLayoutReflection_getFieldByIndex(TypeLayoutReflectionPtr layout,
                                      unsigned int index);
 
-VariableLayoutReflection
-TypeLayoutReflection_getExplicitCounter(TypeLayoutReflection layout);
+VariableLayoutReflectionPtr
+TypeLayoutReflection_getExplicitCounter(TypeLayoutReflectionPtr layout);
 
-bool TypeLayoutReflection_isArray(TypeLayoutReflection layout);
+bool TypeLayoutReflection_isArray(TypeLayoutReflectionPtr layout);
 
-TypeLayoutReflection
-TypeLayoutReflection_unwrapArray(TypeLayoutReflection layout);
+TypeLayoutReflectionPtr
+TypeLayoutReflection_unwrapArray(TypeLayoutReflectionPtr layout);
 
-size_t TypeLayoutReflection_getElementCount(TypeLayoutReflection layout,
-                                            ShaderReflection reflection);
+size_t TypeLayoutReflection_getElementCount(TypeLayoutReflectionPtr layout,
+                                            ShaderReflectionPtr reflection);
 
-size_t TypeLayoutReflection_getTotalElementCount(TypeLayoutReflection layout);
+size_t
+TypeLayoutReflection_getTotalElementCount(TypeLayoutReflectionPtr layout);
 
-size_t TypeLayoutReflection_getElementStride(TypeLayoutReflection layout,
+size_t TypeLayoutReflection_getElementStride(TypeLayoutReflectionPtr layout,
                                              enum ParameterCategory category);
 
-TypeLayoutReflection
-TypeLayoutReflection_getElementTypeLayout(TypeLayoutReflection layout);
+TypeLayoutReflectionPtr
+TypeLayoutReflection_getElementTypeLayout(TypeLayoutReflectionPtr layout);
 
-VariableLayoutReflection
-TypeLayoutReflection_getElementVarLayout(TypeLayoutReflection layout);
+VariableLayoutReflectionPtr
+TypeLayoutReflection_getElementVarLayout(TypeLayoutReflectionPtr layout);
 
-VariableLayoutReflection
-TypeLayoutReflection_getContainerVarLayout(TypeLayoutReflection layout);
-
-enum ParameterCategory
-TypeLayoutReflection_getParameterCategory(TypeLayoutReflection layout);
-
-unsigned int TypeLayoutReflection_getCategoryCount(TypeLayoutReflection layout);
+VariableLayoutReflectionPtr
+TypeLayoutReflection_getContainerVarLayout(TypeLayoutReflectionPtr layout);
 
 enum ParameterCategory
-TypeLayoutReflection_getCategoryByIndex(TypeLayoutReflection layout,
+TypeLayoutReflection_getParameterCategory(TypeLayoutReflectionPtr layout);
+
+unsigned int
+TypeLayoutReflection_getCategoryCount(TypeLayoutReflectionPtr layout);
+
+enum ParameterCategory
+TypeLayoutReflection_getCategoryByIndex(TypeLayoutReflectionPtr layout,
                                         unsigned int index);
 
-unsigned TypeLayoutReflection_getRowCount(TypeLayoutReflection layout);
+unsigned TypeLayoutReflection_getRowCount(TypeLayoutReflectionPtr layout);
 
-unsigned TypeLayoutReflection_getColumnCount(TypeLayoutReflection layout);
+unsigned TypeLayoutReflection_getColumnCount(TypeLayoutReflectionPtr layout);
 
 enum SlangScalarType
-TypeLayoutReflection_getScalarType(TypeLayoutReflection layout);
+TypeLayoutReflection_getScalarType(TypeLayoutReflectionPtr layout);
 
-TypeReflection
-TypeLayoutReflection_getResourceResultType(TypeLayoutReflection layout);
+TypeReflectionPtr
+TypeLayoutReflection_getResourceResultType(TypeLayoutReflectionPtr layout);
 
 enum SlangResourceShape
-TypeLayoutReflection_getResourceShape(TypeLayoutReflection layout);
+TypeLayoutReflection_getResourceShape(TypeLayoutReflectionPtr layout);
 
 enum SlangResourceAccess
-TypeLayoutReflection_getResourceAccess(TypeLayoutReflection layout);
+TypeLayoutReflection_getResourceAccess(TypeLayoutReflectionPtr layout);
 
-char const *TypeLayoutReflection_getName(TypeLayoutReflection layout);
+char const *TypeLayoutReflection_getName(TypeLayoutReflectionPtr layout);
 
 enum SlangMatrixLayoutMode
-TypeLayoutReflection_getMatrixLayoutMode(TypeLayoutReflection layout);
+TypeLayoutReflection_getMatrixLayoutMode(TypeLayoutReflectionPtr layout);
 
-int TypeLayoutReflection_getGenericParamIndex(TypeLayoutReflection layout);
+int TypeLayoutReflection_getGenericParamIndex(TypeLayoutReflectionPtr layout);
 
-SlangInt TypeLayoutReflection_getBindingRangeCount(TypeLayoutReflection layout);
+SlangInt
+TypeLayoutReflection_getBindingRangeCount(TypeLayoutReflectionPtr layout);
 
 enum SlangBindingType
-TypeLayoutReflection_getBindingRangeType(TypeLayoutReflection layout,
+TypeLayoutReflection_getBindingRangeType(TypeLayoutReflectionPtr layout,
                                          SlangInt index);
 
 bool TypeLayoutReflection_isBindingRangeSpecializable(
-    TypeLayoutReflection layout, SlangInt index);
+    TypeLayoutReflectionPtr layout, SlangInt index);
 
 SlangInt
-TypeLayoutReflection_getBindingRangeBindingCount(TypeLayoutReflection layout,
+TypeLayoutReflection_getBindingRangeBindingCount(TypeLayoutReflectionPtr layout,
                                                  SlangInt index);
 
 SlangInt
-TypeLayoutReflection_getFieldBindingRangeOffset(TypeLayoutReflection layout,
+TypeLayoutReflection_getFieldBindingRangeOffset(TypeLayoutReflectionPtr layout,
                                                 SlangInt index);
 
 SlangInt TypeLayoutReflection_getExplicitCounterBindingRangeOffset(
-    TypeLayoutReflection layout);
+    TypeLayoutReflectionPtr layout);
 
-TypeLayoutReflection
-TypeLayoutReflection_getBindingRangeLeafTypeLayout(TypeLayoutReflection layout,
-                                                   SlangInt index);
+TypeLayoutReflectionPtr TypeLayoutReflection_getBindingRangeLeafTypeLayout(
+    TypeLayoutReflectionPtr layout, SlangInt index);
 
 SlangImageFormatIntegral
-TypeLayoutReflection_getBindingRangeImageFormat(TypeLayoutReflection layout,
+TypeLayoutReflection_getBindingRangeImageFormat(TypeLayoutReflectionPtr layout,
                                                 SlangInt index);
 
 SlangInt TypeLayoutReflection_getBindingRangeDescriptorSetIndex(
-    TypeLayoutReflection layout, SlangInt index);
+    TypeLayoutReflectionPtr layout, SlangInt index);
 
 SlangInt TypeLayoutReflection_getBindingRangeFirstDescriptorRangeIndex(
-    TypeLayoutReflection layout, SlangInt index);
+    TypeLayoutReflectionPtr layout, SlangInt index);
 
 SlangInt TypeLayoutReflection_getBindingRangeDescriptorRangeCount(
-    TypeLayoutReflection layout, SlangInt index);
+    TypeLayoutReflectionPtr layout, SlangInt index);
 
 SlangInt
-TypeLayoutReflection_getDescriptorSetCount(TypeLayoutReflection layout);
+TypeLayoutReflection_getDescriptorSetCount(TypeLayoutReflectionPtr layout);
 
 SlangInt
-TypeLayoutReflection_getDescriptorSetSpaceOffset(TypeLayoutReflection layout,
+TypeLayoutReflection_getDescriptorSetSpaceOffset(TypeLayoutReflectionPtr layout,
                                                  SlangInt setIndex);
 
 SlangInt TypeLayoutReflection_getDescriptorSetDescriptorRangeCount(
-    TypeLayoutReflection layout, SlangInt setIndex);
+    TypeLayoutReflectionPtr layout, SlangInt setIndex);
 
 SlangInt TypeLayoutReflection_getDescriptorSetDescriptorRangeIndexOffset(
-    TypeLayoutReflection layout, SlangInt setIndex, SlangInt rangeIndex);
+    TypeLayoutReflectionPtr layout, SlangInt setIndex, SlangInt rangeIndex);
 
 SlangInt TypeLayoutReflection_getDescriptorSetDescriptorRangeDescriptorCount(
-    TypeLayoutReflection layout, SlangInt setIndex, SlangInt rangeIndex);
+    TypeLayoutReflectionPtr layout, SlangInt setIndex, SlangInt rangeIndex);
 
 enum SlangBindingType TypeLayoutReflection_getDescriptorSetDescriptorRangeType(
-    TypeLayoutReflection layout, SlangInt setIndex, SlangInt rangeIndex);
+    TypeLayoutReflectionPtr layout, SlangInt setIndex, SlangInt rangeIndex);
 
 enum ParameterCategory
 TypeLayoutReflection_getDescriptorSetDescriptorRangeCategory(
-    TypeLayoutReflection layout, SlangInt setIndex, SlangInt rangeIndex);
+    TypeLayoutReflectionPtr layout, SlangInt setIndex, SlangInt rangeIndex);
 
 SlangInt
-TypeLayoutReflection_getSubObjectRangeCount(TypeLayoutReflection layout);
+TypeLayoutReflection_getSubObjectRangeCount(TypeLayoutReflectionPtr layout);
 
 SlangInt TypeLayoutReflection_getSubObjectRangeBindingRangeIndex(
-    TypeLayoutReflection layout, SlangInt subObjectRangeIndex);
+    TypeLayoutReflectionPtr layout, SlangInt subObjectRangeIndex);
 
-SlangInt
-TypeLayoutReflection_getSubObjectRangeSpaceOffset(TypeLayoutReflection layout,
-                                                  SlangInt subObjectRangeIndex);
+SlangInt TypeLayoutReflection_getSubObjectRangeSpaceOffset(
+    TypeLayoutReflectionPtr layout, SlangInt subObjectRangeIndex);
 
-VariableLayoutReflection
-TypeLayoutReflection_getSubObjectRangeOffset(TypeLayoutReflection layout,
+VariableLayoutReflectionPtr
+TypeLayoutReflection_getSubObjectRangeOffset(TypeLayoutReflectionPtr layout,
                                              SlangInt subObjectRangeIndex);
 
-char const *EntryPointReflection_getName(EntryPointReflection self);
+char const *EntryPointReflection_getName(EntryPointReflectionPtr self);
 
-char const *EntryPointReflection_getNameOverride(EntryPointReflection self);
+char const *EntryPointReflection_getNameOverride(EntryPointReflectionPtr self);
 
-unsigned EntryPointReflection_getParameterCount(EntryPointReflection self);
+unsigned EntryPointReflection_getParameterCount(EntryPointReflectionPtr self);
 
-FunctionReflection EntryPointReflection_getFunction(EntryPointReflection self);
+FunctionReflectionPtr
+EntryPointReflection_getFunction(EntryPointReflectionPtr self);
 
-VariableLayoutReflection
-EntryPointReflection_getParameterByIndex(EntryPointReflection self,
+VariableLayoutReflectionPtr
+EntryPointReflection_getParameterByIndex(EntryPointReflectionPtr self,
                                          unsigned index);
 
-SlangStageIntegral EntryPointReflection_getStage(EntryPointReflection self);
+SlangStageIntegral EntryPointReflection_getStage(EntryPointReflectionPtr self);
 
 void EntryPointReflection_getComputeThreadGroupSize(
-    EntryPointReflection self, SlangUInt axisCount,
+    EntryPointReflectionPtr self, SlangUInt axisCount,
     SlangUInt *outSizeAlongAxis);
 
-void EntryPointReflection_getComputeWaveSize(EntryPointReflection self,
+void EntryPointReflection_getComputeWaveSize(EntryPointReflectionPtr self,
                                              SlangUInt *outWaveSize);
 
-bool EntryPointReflection_usesAnySampleRateInput(EntryPointReflection self);
+bool EntryPointReflection_usesAnySampleRateInput(EntryPointReflectionPtr self);
 
-VariableLayoutReflection
-EntryPointReflection_getVarLayout(EntryPointReflection self);
+VariableLayoutReflectionPtr
+EntryPointReflection_getVarLayout(EntryPointReflectionPtr self);
 
-TypeLayoutReflection
-EntryPointReflection_getTypeLayout(EntryPointReflection self);
+TypeLayoutReflectionPtr
+EntryPointReflection_getTypeLayout(EntryPointReflectionPtr self);
 
-VariableLayoutReflection
-EntryPointReflection_getResultVarLayout(EntryPointReflection self);
+VariableLayoutReflectionPtr
+EntryPointReflection_getResultVarLayout(EntryPointReflectionPtr self);
 
-bool EntryPointReflection_hasDefaultConstantBuffer(EntryPointReflection self);
+bool EntryPointReflection_hasDefaultConstantBuffer(
+    EntryPointReflectionPtr self);
 
-char const *TypeParameterReflection_getName(TypeParameterReflection self);
+char const *TypeParameterReflection_getName(TypeParameterReflectionPtr self);
 
-unsigned TypeParameterReflection_getIndex(TypeParameterReflection self);
+unsigned TypeParameterReflection_getIndex(TypeParameterReflectionPtr self);
 
 unsigned
-TypeParameterReflection_getConstraintCount(TypeParameterReflection self);
+TypeParameterReflection_getConstraintCount(TypeParameterReflectionPtr self);
 
-TypeReflection
-TypeParameterReflection_getConstraintByIndex(TypeParameterReflection self,
+TypeReflectionPtr
+TypeParameterReflection_getConstraintByIndex(TypeParameterReflectionPtr self,
                                              unsigned index);
 
 SlangResult IComponentType_getEntryPointMetadata(IComponentType componentType,
@@ -446,8 +453,8 @@ char const *AttributeReflection_getName(Attribute self);
 
 uint32_t AttributeReflection_getArgumentCount(Attribute self);
 
-TypeReflection AttributeReflection_getArgumentType(Attribute self,
-                                                   uint32_t index);
+TypeReflectionPtr AttributeReflection_getArgumentType(Attribute self,
+                                                      uint32_t index);
 
 SlangResult AttributeReflection_getArgumentValueInt(Attribute self,
                                                     uint32_t index, int *value);
@@ -460,47 +467,50 @@ const char *AttributeReflection_getArgumentValueString(Attribute self,
                                                        uint32_t index,
                                                        size_t *outSize);
 
-const char *FunctionReflection_getName(FunctionReflection self);
+const char *FunctionReflection_getName(FunctionReflectionPtr self);
 
-TypeReflection FunctionReflection_getReturnType(FunctionReflection self);
+TypeReflectionPtr FunctionReflection_getReturnType(FunctionReflectionPtr self);
 
-unsigned int FunctionReflection_getParameterCount(FunctionReflection self);
+unsigned int FunctionReflection_getParameterCount(FunctionReflectionPtr self);
 
-VariableReflection
-FunctionReflection_getParameterByIndex(FunctionReflection self,
+VariableReflectionPtr
+FunctionReflection_getParameterByIndex(FunctionReflectionPtr self,
                                        unsigned int index);
 
-unsigned int FunctionReflection_getUserAttributeCount(FunctionReflection self);
+unsigned int
+FunctionReflection_getUserAttributeCount(FunctionReflectionPtr self);
 
-Attribute FunctionReflection_getUserAttributeByIndex(FunctionReflection self,
+Attribute FunctionReflection_getUserAttributeByIndex(FunctionReflectionPtr self,
                                                      unsigned int index);
 
-Attribute FunctionReflection_findAttributeByName(FunctionReflection self,
+Attribute FunctionReflection_findAttributeByName(FunctionReflectionPtr self,
                                                  IGlobalSession inSession,
                                                  char const *name);
 
-Attribute FunctionReflection_findUserAttributeByName(FunctionReflection self,
+Attribute FunctionReflection_findUserAttributeByName(FunctionReflectionPtr self,
                                                      IGlobalSession inSession,
                                                      char const *name);
 
-Modifier FunctionReflection_findModifier(FunctionReflection self,
+Modifier FunctionReflection_findModifier(FunctionReflectionPtr self,
                                          ModifierIDIntegral id);
 
-GenericReflection
-FunctionReflection_getGenericContainer(FunctionReflection self);
+GenericReflectionPtr
+FunctionReflection_getGenericContainer(FunctionReflectionPtr self);
 
-FunctionReflection
-FunctionReflection_applySpecializations(FunctionReflection self,
-                                        GenericReflection inGeneric);
+FunctionReflectionPtr
+FunctionReflection_applySpecializations(FunctionReflectionPtr self,
+                                        GenericReflectionPtr inGeneric);
 
-FunctionReflection
-FunctionReflection_specializeWithArgTypes(FunctionReflection self,
+FunctionReflectionPtr
+FunctionReflection_specializeWithArgTypes(FunctionReflectionPtr self,
                                           unsigned int argCount,
-                                          TypeReflection const *inTypes);
+                                          TypeReflectionPtr const *inTypes);
 
-bool FunctionReflection_isOverloaded(FunctionReflection self);
+bool FunctionReflection_isOverloaded(FunctionReflectionPtr self);
 
-unsigned int FunctionReflection_getOverloadCount(FunctionReflection self);
+unsigned int FunctionReflection_getOverloadCount(FunctionReflectionPtr self);
 
-FunctionReflection FunctionReflection_getOverload(FunctionReflection self,
-                                                  unsigned int index);
+FunctionReflectionPtr FunctionReflection_getOverload(FunctionReflectionPtr self,
+                                                     unsigned int index);
+
+SlangResult release(Unknown self);

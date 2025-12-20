@@ -14,19 +14,22 @@ typedef void *IBlob;
 typedef void *IEntryPoint;
 typedef void *IComponentType;
 typedef void *ProgramLayout;
-typedef void *TypeParameterReflection;
-typedef void *VariableLayoutReflection;
-typedef void *EntryPointReflection;
-typedef void *TypeReflection;
-typedef void *FunctionReflection;
-typedef void *VariableReflection;
-typedef void *TypeLayoutReflection;
-typedef void *GenericReflection;
 typedef void *Modifier;
 typedef void *Attribute;
-typedef void *ShaderReflection;
 typedef void *IMetadata;
+typedef void *Unknown;
 
+typedef void *ShaderReflectionPtr;
+typedef void *TypeParameterReflectionPtr;
+typedef void *VariableLayoutReflectionPtr;
+typedef void *EntryPointReflectionPtr;
+typedef void *TypeReflectionPtr;
+typedef void *FunctionReflectionPtr;
+typedef void *VariableReflectionPtr;
+typedef void *TypeLayoutReflectionPtr;
+typedef void *GenericReflectionPtr;
+
+#ifndef SLANG_MAKE_ERROR
 #define SLANG_MAKE_ERROR(fac, code)                                            \
   ((((int32_t)(fac)) << 16) | ((int32_t)(code)) | ((int32_t)0x80000000))
 
@@ -61,6 +64,7 @@ typedef void *IMetadata;
 /* Aliases */
 #define SLANG_ERROR_INSUFFICIENT_BUFFER SLANG_E_BUFFER_TOO_SMALL
 #define SLANG_ERROR_INVALID_PARAMETER SLANG_E_INVALID_ARG
+#endif
 
 struct PreprocessorMacroDesc {
   const char *name;
@@ -473,8 +477,8 @@ enum GenericArgType {
   SLANG_GENERIC_ARG_BOOL = 2
 };
 
-union GenericArgReflection {
-  TypeReflection typeVal;
+union GenericArgReflectionPtr {
+  TypeReflectionPtr typeVal;
   int64_t intVal;
   bool boolVal;
 };
