@@ -1,0 +1,40 @@
+.{
+    .name = .slang,
+    .version = "0.0.0",
+    .fingerprint = 0x681d367cf8d83153,
+    .minimum_zig_version = "0.14.1",
+    .dependencies = .{
+        .@"slang-macos-aarch64" = .{
+            .url = "https://github.com/shader-slang/slang/releases/download/v2025.24/slang-2025.24-macos-aarch64.tar.gz",
+            .hash = "N-V-__8AAMCIuQeIvrpSUXztq9ziHiAUCbi1PYS1Opl7axUt",
+        },
+        .@"slang-macos-x86_64" = .{
+            .url = "https://github.com/shader-slang/slang/releases/download/v2025.24/slang-2025.24-macos-x86_64.tar.gz",
+            .hash = "N-V-__8AADSuNwJ4w8pBU3Snd1s_7-84uJgO_FCndJXYzEwM",
+        },
+
+        .@"slang-linux-aarch64" = .{
+            .url = "https://github.com/shader-slang/slang/releases/download/v2025.24/slang-2025.24-linux-aarch64.tar.gz",
+            .hash = "N-V-__8AAAYmHwJ6um5CKzlg3vNtdmzzKfPnuciYSRUlV3on",
+        },
+        .@"slang-linux-x86_64" = .{
+            .url = "https://github.com/shader-slang/slang/releases/download/v2025.24/slang-2025.24-linux-x86_64.tar.gz",
+            .hash = "N-V-__8AANtIVArDIJ0pN5SdBYDfaIBCakMWUt30F-_ahDS-",
+        },
+
+        .@"slang-windows-aarch64" = .{
+            .url = "https://github.com/shader-slang/slang/releases/download/v2025.24/slang-2025.24-windows-aarch64.zip",
+            .hash = "N-V-__8AACnNEwODaAiXl7ztkEfcbG8PXD4BBfiKA-nyHvCW",
+        },
+        .@"slang-windows-x86_64" = .{
+            .url = "https://github.com/shader-slang/slang/releases/download/v2025.24/slang-2025.24-windows-x86_64.zip",
+            .hash = "N-V-__8AAO8JhgjnbtJ_U94YbzJuBrOBx0nXa0AvupJEHYek",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "shim",
+        "src",
+    },
+}
