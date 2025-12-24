@@ -652,7 +652,24 @@ pub const ResourceShape = enum(c.SlangResourceShapeIntegral) {
     SLANG_TEXTURE_2D_MULTISAMPLE_ARRAY = c.SLANG_TEXTURE_2D_MULTISAMPLE_ARRAY,
     SLANG_TEXTURE_SUBPASS_MULTISAMPLE = c.SLANG_TEXTURE_SUBPASS_MULTISAMPLE,
 
+    _,
+
+    pub const PrimitiveShape = enum {
+        Texture,
+        SampledTexture,
+        StorageBuffer,
+        ByteAddressBuffer,
+        Unknown,
+    };
+
     pub fn isTexture(self: ResourceShape) bool {
+        switch (self) {
+            .SLANG_TEXTURE_1D, .SLANG_TEXTURE_2D, .SLANG_TEXTURE_3D, .SLANG_TEXTURE_CUBE, .SLANG_TEXTURE_BUFFER => return true,
+        }
+        return false;
+    }
+
+    pub fn primitiveShape(self: ResourceShape) PrimitiveShape {
         return switch (self) {
             .SLANG_TEXTURE_1D,
             .SLANG_TEXTURE_2D,
@@ -665,8 +682,16 @@ pub const ResourceShape = enum(c.SlangResourceShapeIntegral) {
             .SLANG_TEXTURE_2D_MULTISAMPLE,
             .SLANG_TEXTURE_2D_MULTISAMPLE_ARRAY,
             .SLANG_TEXTURE_SUBPASS_MULTISAMPLE,
-            => true,
-            else => false,
+            => return .Texture,
+            .SLANG_BYTE_ADDRESS_BUFFER => .ByteAddressBuffer,
+            .SLANG_STRUCTURED_BUFFER => .StorageBuffer,
+            _ => {
+                const shape = @intFromEnum(self);
+                if (shape & @intFromEnum(ResourceShape.SLANG_TEXTURE_MULTISAMPLE_FLAG) != 0) return .SampledTexture;
+                if (shape & @intFromEnum(ResourceShape.SLANG_TEXTURE_COMBINED_FLAG) != 0) return .SampledTexture;
+                @panic("unknown shape");
+            },
+            else => @panic("unknown shape"),
         };
     }
 };
