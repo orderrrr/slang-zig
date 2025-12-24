@@ -426,6 +426,7 @@ pub const SlangResult = enum(i32) {
     INTERNAL_FAIL = c.SLANG_E_INTERNAL_FAIL,
     NOT_AVAILABLE = c.SLANG_E_NOT_AVAILABLE,
     TIME_OUT = c.SLANG_E_TIME_OUT,
+    SUCCESS = 0,
     _,
 
     pub fn isSuccess(self: SlangResult) bool {
@@ -755,7 +756,7 @@ pub fn getTargetCode(linkedProgram: c.IComponentType, outOutput: *c.IBlob, outDi
 }
 
 pub fn getBlobSlice(blob: c.IBlob, slice: *[]const u8) SlangResult {
-    var p: [*c]*anyopaque = undefined;
+    var p: *const anyopaque = undefined;
     var s: usize = undefined;
 
     const result: SlangResult = @enumFromInt(c.getBlobSlice(blob, @ptrCast(&p), &s));
@@ -763,8 +764,7 @@ pub fn getBlobSlice(blob: c.IBlob, slice: *[]const u8) SlangResult {
         return result;
     }
 
-    const buf: [*c]const u8 = @ptrCast(p);
-    slice.* = buf[0..s];
+    slice.* = @as([*c]const u8, @ptrCast(p))[0..s];
 
     return result;
 }
@@ -1397,6 +1397,7 @@ pub fn FunctionReflection_getOverload(self: FunctionReflectionPtr, index: u32) F
 }
 
 pub fn release(unknown: Unknown) SlangResult {
+    if (unknown == null) return SlangResult.SUCCESS;
     return @enumFromInt(c.release(unknown));
 }
 
