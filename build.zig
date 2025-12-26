@@ -23,7 +23,7 @@ pub fn build(b: *std.Build) void {
         else => @panic("unsupported OS for Slang"),
     };
 
-    const slang_dep = b.dependency(dep_name, .{});
+    const slang_dep = b.lazyDependency(dep_name, .{}) orelse @panic("failed to resolve Slang dependency");
     // Get paths to the extracted Slang files
     const include_path = slang_dep.path("include");
     const lib_path = slang_dep.path("lib");
