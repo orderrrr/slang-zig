@@ -85,7 +85,7 @@ pub fn main() !void {
     }
 
     var entry_point = std.mem.zeroes(slang.IEntryPoint);
-    assert(slang.findEntryPointByName(module, entry_point_name, &entry_point).isSuccess());
+    assert(slang.IModule_findEntryPointByName(module, entry_point_name, &entry_point).isSuccess());
 
     const types = [2]slang.IComponentType{ module, entry_point };
 

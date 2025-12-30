@@ -34,6 +34,7 @@ pub const VariableReflectionPtr = c.VariableReflectionPtr;
 pub const TypeLayoutReflectionPtr = c.TypeLayoutReflectionPtr;
 pub const GenericReflectionPtr = c.GenericReflectionPtr;
 pub const ShaderReflectionPtr = c.ShaderReflectionPtr;
+pub const DeclReflectionPtr = c.DeclReflectionPtr;
 pub const Modifier = c.Modifier;
 pub const AttributeReflectionPtr = c.Attribute;
 pub const Unknown = c.Unknown;
@@ -760,10 +761,6 @@ pub fn findProfile(global: c.IGlobalSession, profile: []const u8) c.SlangProfile
     return c.findProfile(global, profile.ptr);
 }
 
-pub fn findEntryPointByName(module: c.IModule, name: []const u8, entryPoint: *IEntryPoint) SlangResult {
-    return @enumFromInt(c.findEntryPointByName(module, name.ptr, entryPoint));
-}
-
 pub fn createCompositeComponent(ss: c.ISession, componentTypes: []const c.IComponentType, outComposite: *c.IComponentType, diagnostics: *IBlob) SlangResult {
     return @enumFromInt(c.createCompositeComponent(ss, @ptrCast(&componentTypes[0]), @intCast(componentTypes.len), outComposite, diagnostics));
 }
@@ -1433,4 +1430,56 @@ pub fn init() void {
 
 pub fn deinit() void {
     _ = c.release(gs);
+}
+
+pub fn IModule_findEntryPointByName(inModule: IModule, name: []const u8, entryPoint: *IEntryPoint) SlangResult {
+    return @enumFromInt(c.IModule_findEntryPointByName(inModule, name.ptr, entryPoint));
+}
+
+pub fn IModule_getDefinedEntryPointCount(inModule: IModule) i32 {
+    return @intCast(c.IModule_getDefinedEntryPointCount(inModule));
+}
+
+pub fn IModule_getDefinedEntryPoint(inModule: IModule, index: i32, outEntryPoint: *IEntryPoint) SlangResult {
+    return @enumFromInt(c.IModule_getDefinedEntryPoint(inModule, index, outEntryPoint));
+}
+
+pub fn IModule_serialize(inModule: IModule, outBlob: *IBlob) SlangResult {
+    return @enumFromInt(c.IModule_serialize(inModule, outBlob));
+}
+
+pub fn IModule_writeToFile(inModule: IModule, file_name: []const u8) SlangResult {
+    return @enumFromInt(c.IModule_writeToFile(inModule, file_name.ptr));
+}
+
+pub fn IModule_getName(inModule: IModule) []const u8 {
+    return std.mem.sliceTo(c.IModule_getName(inModule), 0);
+}
+
+pub fn IModule_getFilePath(inModule: IModule) []const u8 {
+    return std.mem.sliceTo(c.IModule_getFilePath(inModule), 0);
+}
+
+pub fn IModule_getUniqueIdentity(inModule: IModule) []const u8 {
+    return std.mem.sliceTo(c.IModule_getUniqueIdentity(inModule), 0);
+}
+
+pub fn IModule_findAndCheckEntryPoint(inModule: IModule, name: []const u8, stage: Stage, outEntryPoint: *IEntryPoint, outDiagnostics: *IBlob) SlangResult {
+    return @intFromEnum(c.IModule_findAndCheckEntryPoint(inModule, name, @intFromEnum(stage), outEntryPoint, outDiagnostics));
+}
+
+pub fn IModule_getDependencyFileCount(inModule: IModule) i32 {
+    return @intCast(c.IModule_getDependencyFileCount(inModule));
+}
+
+pub fn IModule_getDependencyFilePath(inModule: IModule, index: i32) []const u8 {
+    return std.mem.sliceTo(c.IModule_getDependencyFilePath(inModule, index), 0);
+}
+
+pub fn IModule_getModuleReflection(inModule: IModule) DeclReflectionPtr {
+    return c.IModule_getModuleReflection(inModule);
+}
+
+pub fn IModule_disassemble(inModule: IModule, outDisassembledBlob: *IBlob) SlangResult {
+    return @enumFromInt(c.IModule_disassemble(inModule, outDisassembledBlob));
 }

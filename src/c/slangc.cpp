@@ -1,4 +1,4 @@
-#include "slang.h"
+#include "/Users/nmcintosh/.bin/slang/include/slang.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -45,14 +45,6 @@ SlangResult loadModuleFromSourceString(slangc::ISession inSession,
 
   return *module ? SLANG_OK : SLANG_FAIL;
 }
-
-SlangResult findEntryPointByName(slangc::IModule inModule, char const *name,
-                                 slangc::IEntryPoint *inEntryPoint) {
-  auto *module = (slang::IModule *)inModule;
-  auto **entryPoint = (slang::IEntryPoint **)inEntryPoint;
-  auto re = module->findEntryPointByName(name, entryPoint);
-  return re;
-};
 
 SlangResult createCompositeComponent(
     slangc::ISession inSession, const slangc::IComponentType *inComponentTypes,
@@ -1163,5 +1155,90 @@ slangc::SlangResult release(slangc::Unknown self) {
 
   auto *unknown = (ISlangUnknown *)self;
   return unknown->release();
+}
+
+SlangResult IModule_findEntryPointByName(slangc::IModule inModule,
+                                         char const *name,
+                                         slangc::IEntryPoint *inEntryPoint) {
+  auto *module = (slang::IModule *)inModule;
+  auto **entryPoint = (slang::IEntryPoint **)inEntryPoint;
+  auto re = module->findEntryPointByName(name, entryPoint);
+  return re;
+}
+
+SlangInt32 IModule_getDefinedEntryPointCount(slangc::IModule inModule) {
+  auto *module = (slang::IModule *)inModule;
+  return module->getDefinedEntryPointCount();
+}
+
+SlangResult IModule_getDefinedEntryPoint(slangc::IModule inModule,
+                                         SlangInt32 index,
+                                         slangc::IEntryPoint *outEntryPoint) {
+  auto *module = (slang::IModule *)inModule;
+  auto **entryPoint = (slang::IEntryPoint **)outEntryPoint;
+  return module->getDefinedEntryPoint(index, entryPoint);
+}
+
+SlangResult IModule_serialize(slangc::IModule inModule,
+                              slangc::IBlob *outSerializedBlob) {
+  auto *module = (slang::IModule *)inModule;
+  auto **serializedBlob = (slang::IBlob **)outSerializedBlob;
+  return module->serialize(serializedBlob);
+}
+
+SlangResult IModule_writeToFile(slangc::IModule inModule,
+                                char const *fileName) {
+  auto *module = (slang::IModule *)inModule;
+  return module->writeToFile(fileName);
+}
+
+const char *IModule_getName(slangc::IModule inModule) {
+  auto *module = (slang::IModule *)inModule;
+  return module->getName();
+}
+
+const char *IModule_getFilePath(slangc::IModule inModule) {
+  auto *module = (slang::IModule *)inModule;
+  return module->getFilePath();
+}
+
+const char *IModule_getUniqueIdentity(slangc::IModule inModule) {
+  auto *module = (slang::IModule *)inModule;
+  return module->getUniqueIdentity();
+}
+
+SlangResult IModule_findAndCheckEntryPoint(slangc::IModule inModule,
+                                           char const *name,
+                                           slangc::SlangStageIntegral stage,
+                                           slangc::IEntryPoint *outEntryPoint,
+                                           slangc::IBlob *outDiagnostics) {
+  auto *module = (slang::IModule *)inModule;
+  auto stageI = static_cast<SlangStage>(stage);
+  auto **entryPoint = (slang::IEntryPoint **)outEntryPoint;
+  auto **diagnostics = (slang::IBlob **)outDiagnostics;
+  return module->findAndCheckEntryPoint(name, stageI, entryPoint, diagnostics);
+}
+
+SlangInt32 IModule_getDependencyFileCount(slangc::IModule inModule) {
+  auto *module = (slang::IModule *)inModule;
+  return module->getDependencyFileCount();
+}
+
+char const *IModule_getDependencyFilePath(slangc::IModule inModule,
+                                          SlangInt32 index) {
+  auto *module = (slang::IModule *)inModule;
+  return module->getDependencyFilePath(index);
+}
+
+slangc::DeclReflectionPtr IModule_getModuleReflection(slangc::IModule inModule) {
+  auto *module = (slang::IModule *)inModule;
+  return module->getModuleReflection();
+}
+
+SlangResult IModule_disassemble(slangc::IModule inModule,
+                                slangc::IBlob *outDisassembledBlob) {
+  auto *module = (slang::IModule *)inModule;
+  auto **blob = (slang::IBlob **)outDisassembledBlob;
+  return module->disassemble(blob);
 }
 }

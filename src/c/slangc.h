@@ -17,9 +17,6 @@ SlangResult loadModuleFromSourceString(ISession inSession,
                                        IModule *outModule,
                                        IBlob *outDiagnostics);
 
-SlangResult findEntryPointByName(IModule inModule, char const *name,
-                                 IEntryPoint *inEntryPoint);
-
 SlangResult createCompositeComponent(ISession inSession,
                                      const IComponentType *inComponentTypes,
                                      SlangInt componentTypeCount,
@@ -514,3 +511,34 @@ FunctionReflectionPtr FunctionReflection_getOverload(FunctionReflectionPtr self,
                                                      unsigned int index);
 
 SlangResult release(Unknown self);
+
+SlangResult IModule_findEntryPointByName(IModule inModule, char const *name,
+                                         IEntryPoint *inEntryPoint);
+
+SlangInt32 IModule_getDefinedEntryPointCount(IModule inModule);
+
+SlangResult IModule_getDefinedEntryPoint(IModule inModule, SlangInt32 index,
+                                         IEntryPoint *outEntryPoint);
+
+SlangResult IModule_serialize(IModule inModule, IBlob *outSerializedBlob);
+
+SlangResult IModule_writeToFile(IModule inModule, char const *fileName);
+
+const char *IModule_getName(IModule inModule);
+
+const char *IModule_getFilePath(IModule inModule);
+
+const char *IModule_getUniqueIdentity(IModule inModule);
+
+SlangResult IModule_findAndCheckEntryPoint(IModule inModule, char const *name,
+                                           SlangStageIntegral stage,
+                                           IEntryPoint *outEntryPoint,
+                                           IBlob *outDiagnostics);
+
+SlangInt32 IModule_getDependencyFileCount(IModule inModule);
+
+char const *IModule_getDependencyFilePath(IModule inModule, SlangInt32 index);
+
+DeclReflectionPtr IModule_getModuleReflection(IModule inModule);
+
+SlangResult IModule_disassemble(IModule inModule, IBlob *outDisassembledBlob);

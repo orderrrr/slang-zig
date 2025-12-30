@@ -6,6 +6,7 @@
 typedef int64_t SlangInt;
 typedef uint64_t SlangUInt;
 typedef int32_t SlangUInt32;
+typedef int32_t SlangInt32;
 
 typedef void *IGlobalSession;
 typedef void *ISession;
@@ -28,6 +29,7 @@ typedef void *FunctionReflectionPtr;
 typedef void *VariableReflectionPtr;
 typedef void *TypeLayoutReflectionPtr;
 typedef void *GenericReflectionPtr;
+typedef void *DeclReflectionPtr;
 
 #ifndef SLANG_MAKE_ERROR
 #define SLANG_MAKE_ERROR(fac, code)                                            \
