@@ -1230,7 +1230,8 @@ char const *IModule_getDependencyFilePath(slangc::IModule inModule,
   return module->getDependencyFilePath(index);
 }
 
-slangc::DeclReflectionPtr IModule_getModuleReflection(slangc::IModule inModule) {
+slangc::DeclReflectionPtr
+IModule_getModuleReflection(slangc::IModule inModule) {
   auto *module = (slang::IModule *)inModule;
   return module->getModuleReflection();
 }
@@ -1240,5 +1241,11 @@ SlangResult IModule_disassemble(slangc::IModule inModule,
   auto *module = (slang::IModule *)inModule;
   auto **blob = (slang::IBlob **)outDisassembledBlob;
   return module->disassemble(blob);
+}
+
+slangc::FunctionReflectionPtr
+IEntryPoint_getFunctionReflection(slangc::IEntryPoint inEntryPoint) {
+  auto *entryPoint = (slang::IEntryPoint *)inEntryPoint;
+  return entryPoint->getFunctionReflection();
 }
 }

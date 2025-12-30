@@ -542,3 +542,6 @@ char const *IModule_getDependencyFilePath(IModule inModule, SlangInt32 index);
 DeclReflectionPtr IModule_getModuleReflection(IModule inModule);
 
 SlangResult IModule_disassemble(IModule inModule, IBlob *outDisassembledBlob);
+
+FunctionReflectionPtr
+IEntryPoint_getFunctionReflection(IEntryPoint inEntryPoint);

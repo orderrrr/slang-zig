@@ -1483,3 +1483,7 @@ pub fn IModule_getModuleReflection(inModule: IModule) DeclReflectionPtr {
 pub fn IModule_disassemble(inModule: IModule, outDisassembledBlob: *IBlob) SlangResult {
     return @enumFromInt(c.IModule_disassemble(inModule, outDisassembledBlob));
 }
+
+pub fn IEntryPoint_getFunctionReflection(inEntryPoint: IEntryPoint) FunctionReflectionPtr {
+    return c.IEntryPoint_getFunctionReflection(inEntryPoint);
+}
