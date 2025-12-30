@@ -1363,7 +1363,9 @@ pub fn AttributeReflection_getArgumentValueString(self: AttributeReflectionPtr, 
 }
 
 pub fn FunctionReflection_getName(self: FunctionReflectionPtr) []const u8 {
-    return std.mem.sliceTo(c.FunctionReflection_getName(self), 0);
+    const name = c.FunctionReflection_getName(self);
+    const span = std.mem.span(name);
+    return span[0..span.len];
 }
 
 pub fn FunctionReflection_getReturnType(self: FunctionReflectionPtr) TypeReflectionPtr {

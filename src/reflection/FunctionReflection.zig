@@ -10,7 +10,7 @@ const Self = @This();
 ptr: lib.FunctionReflectionPtr,
 
 pub fn getName(self: *const Self) []const u8 {
-    return std.mem.sliceTo(lib.FunctionReflection_getName(self.ptr), 0);
+    return lib.FunctionReflection_getName(self.ptr);
 }
 
 pub fn getReturnType(self: *const Self) TypeReflection {
