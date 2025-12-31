@@ -3,6 +3,11 @@ const FixedBufferAllocator = std.heap.FixedBufferAllocator;
 const Allocator = std.mem.Allocator;
 const AutoHashMap = std.AutoHashMap;
 const ArrayList = std.ArrayList;
+const StringHashMap = std.StringHashMap;
+
+const annotation = @import("annotation.zig");
+const Annotation = annotation.Annotation;
+const UserAttribute = annotation.UserAttribute;
 
 const slang = @import("slang");
 
@@ -16,6 +21,55 @@ pub const Entry = struct {
 
     pub fn deinit(self: *const Entry, alloc: Allocator) void {
         alloc.free(self.allocator.buffer);
+    }
+
+    pub fn jsonStringify(self: *const @This(), jw: anytype) !void {
+        try jw.beginObject();
+
+        try jw.objectField("name");
+        try jw.write(self.name);
+
+        try jw.objectField("stage");
+        try jw.write(self.stage);
+
+        try jw.objectField("workerSize");
+        try jw.write(self.workerSize);
+
+        try jw.objectField("function");
+        try jw.write(self.function);
+
+        try jw.objectField("bindings");
+        try jw.write(self.bindings);
+
+        try jw.endObject();
+    }
+};
+
+pub const Argument = union(enum) {
+    Int: i32,
+    Float: f32,
+    Bool: bool,
+    String: []const u8,
+
+    pub fn from(self: *const slang.AttributeReflection, allocator: Allocator) ![]Argument {
+        var args = try std.ArrayList(Argument).initCapacity(allocator, self.getArgumentCount());
+        defer args.deinit(allocator);
+
+        for (0..args.capacity) |iu| {
+            const i: u32 = @intCast(iu);
+            switch (self.getArgumentType(i).getScalarType()) {
+                .INT8, .INT16, .INT32, .INT64 => args.appendAssumeCapacity(.{ .Int = try self.getArgumentValueInt(i) }),
+                .FLOAT16, .FLOAT32, .FLOAT64 => args.appendAssumeCapacity(.{ .Float = try self.getArgumentValueFloat(i) }),
+                .BOOL => args.appendAssumeCapacity(.{ .Bool = @bitCast(@as(u1, @intCast(try self.getArgumentValueInt(i)))) }),
+                .UINTPTR => args.appendAssumeCapacity(.{ .String = try allocator.dupe(u8, self.getArgumentValueString(i)) }),
+                .NONE => {},
+                else => {
+                    std.log.err("Attribute with ScalarType {s} is not supported", .{self.getArgumentType(i).getScalarType().toString()});
+                    @panic("Attribute is not supported");
+                },
+            }
+        }
+        return try args.toOwnedSlice(allocator);
     }
 };
 
@@ -42,10 +96,49 @@ pub const BindingCounts = struct {
 };
 
 pub const Binding = struct {
+    buffer: []u8,
     name: []const u8,
     bindingType: BindingType,
-    type: TypeLayout,
-    userAttributes: ?[]Attribute,
+    size: usize,
+    type: Type,
+    userAttributes: ?[]Annotation,
+
+    pub fn findAttribute(self: *const Binding, comptime tag: std.meta.Tag(Annotation)) ?std.meta.TagPayload(Annotation, tag) {
+        return getAnnotation(self.userAttributes, tag);
+    }
+
+    pub fn empty(allocator: Allocator) Binding {
+        const buf = allocator.alloc(u8, 1024) catch @panic("OOM");
+        return .{
+            .buffer = buf,
+            .name = undefined,
+            .bindingType = undefined,
+            .type = undefined,
+            .size = undefined,
+            .userAttributes = undefined,
+        };
+    }
+
+    pub fn jsonStringify(self: *const @This(), jw: anytype) !void {
+        try jw.beginObject();
+
+        try jw.objectField("name");
+        try jw.write(self.name);
+
+        try jw.objectField("bindingType");
+        try jw.write(self.bindingType);
+
+        try jw.objectField("size");
+        try jw.write(self.size);
+
+        try jw.objectField("type");
+        try jw.write(self.type);
+
+        try jw.objectField("userAttributes");
+        try jw.write(self.userAttributes);
+
+        try jw.endObject();
+    }
 };
 
 pub const BindingType = enum {
@@ -102,108 +195,146 @@ pub const SlotBindings = union(enum) {
     }
 };
 
-pub const TypeLayout = union(enum) {
-    Scalar: struct {
-        type: slang.ScalarType,
-    },
-    Structure: struct {
-        name: []const u8,
-        fields: []VariableLayout,
-    },
-    Resource: struct {
-        name: []const u8,
-        type: *Type,
-        access: slang.ResourceAccess,
-        shape: slang.ResourceShape,
-    },
-    Array: struct {
-        name: []const u8,
-        elementType: *TypeLayout,
-    },
-    Texture: struct {
-        name: []const u8,
-        rowCount: u32,
-        columnCount: u32,
-    },
-    ConstantBuffer: struct {
-        name: []const u8,
-        type: *TypeLayout,
-    },
-    ParameterBlock: struct {
-        name: []const u8,
-        elementType: *TypeLayout,
-    },
-    Vector: struct {
-        name: []const u8,
-        size: usize,
-        type: *Type,
-    },
-    NotImplemented,
-    None,
-};
-
 pub const Type = union(enum) {
     Scalar: struct {
         type: slang.ScalarType,
-        userAttributes: ?[]Attribute,
+        annotation: ?[]Annotation,
     },
-
     Structure: struct {
         name: []const u8,
-        fields: []Variable,
-        userAttributes: ?[]Attribute,
+        fields: []Type,
+        annotation: ?[]Annotation,
     },
-
     Resource: struct {
         name: []const u8,
         result: *Type,
         access: slang.ResourceAccess,
         shape: slang.ResourceShape,
-        userAttributes: ?[]Attribute,
+        annotation: ?[]Annotation,
     },
-
     Array: struct {
         name: []const u8,
         elementType: *Type,
-        userAttributes: ?[]Attribute,
-        // TODO: complete.
-        // elementCount: u32,
-        // elementStride: u32,
+        annotation: ?[]Annotation,
     },
-
     Texture: struct {
         name: []const u8,
         rowCount: u32,
         columnCount: u32,
-        userAttributes: ?[]Attribute,
+        annotation: ?[]Annotation,
     },
-
     ConstantBuffer: struct {
         name: []const u8,
         type: *Type,
-        userAttributes: ?[]Attribute,
+        annotation: ?[]Annotation,
     },
-
+    ParameterBlock: struct {
+        name: []const u8,
+        elementType: *Type,
+        annotation: ?[]Annotation,
+    },
     Vector: struct {
         name: []const u8,
-        type: *Type,
         size: usize,
-        userAttributes: ?[]Attribute,
+        type: *Type,
+        annotation: ?[]Annotation,
     },
-
     NotImplemented,
     None,
+
+    pub fn getAnnotation(self: *const slang.TypeReflection, allocator: Allocator) ![]Annotation {
+        return try Annotation.fromList(allocator, self.ptr, self.getUserAttributeCount(), slang.TypeReflection_getUserAttributeByIndex);
+    }
+
+    pub fn from(self: anytype, allocator: Allocator) !Type {
+        const annotationsOf = struct {
+            inline fn annotationsOf(x: anytype, a: Allocator) ?[]Annotation {
+                const T = @TypeOf(x.*);
+                if (T == slang.TypeReflection) {
+                    return Type.getAnnotation(x, a) catch null;
+                }
+                return null;
+            }
+        }.annotationsOf;
+
+        return switch (self.getKind()) {
+            .SCALAR => .{ .Scalar = .{
+                .type = self.getScalarType(),
+                .annotation = annotationsOf(self, allocator),
+            } },
+            .STRUCT => .{ .Structure = .{
+                .name = try allocator.dupe(u8, self.getName()),
+                .fields = try Type.getFields(self, allocator),
+                .annotation = null,
+            } },
+            .RESOURCE => {
+                const t = try allocator.create(Type);
+                t.* = try Type.from(&self.getResourceResultType(), allocator);
+                return .{ .Resource = .{
+                    .name = try allocator.dupe(u8, self.getName()),
+                    .result = t,
+                    .access = self.getResourceAccess(),
+                    .shape = self.getResourceShape(),
+                    .annotation = annotationsOf(self, allocator),
+                } };
+            },
+            .ARRAY => {
+                const t = try allocator.create(Type);
+                t.* = try from(&self.getElementType(), allocator);
+                return .{ .Array = .{
+                    .name = try allocator.dupe(u8, self.getName()),
+                    .elementType = t,
+                    .annotation = annotationsOf(self, allocator),
+                } };
+            },
+            .TEXTURE_BUFFER => .{ .Texture = .{
+                .name = try allocator.dupe(u8, self.getName()),
+                .rowCount = self.getRowCount(),
+                .columnCount = self.getColumnCount(),
+                .annotation = annotationsOf(self, allocator),
+            } },
+            .NONE => .None,
+            .CONSTANT_BUFFER => {
+                const t = try allocator.create(Type);
+                t.* = try from(&self.getElementType(), allocator);
+
+                return .{ .ConstantBuffer = .{
+                    .name = try allocator.dupe(u8, self.getName()),
+                    .type = t,
+                    .annotation = annotationsOf(self, allocator),
+                } };
+            },
+            .VECTOR => {
+                const t = try allocator.create(Type);
+                t.* = try from(&self.getElementType(), allocator);
+
+                return .{ .Vector = .{
+                    .name = try allocator.dupe(u8, self.getName()),
+                    .size = 0,
+                    .type = t,
+                    .annotation = annotationsOf(self, allocator),
+                } };
+            },
+            else => .NotImplemented,
+        };
+    }
+
+    pub fn getFields(self: anytype, allocator: Allocator) anyerror![]Type {
+        var fields = try std.ArrayList(Type).initCapacity(allocator, self.getFieldCount());
+        for (0..fields.capacity) |i| {
+            fields.appendAssumeCapacity(try Type.fromVariable(&self.getFieldByIndex(@intCast(i)), allocator));
+        }
+        return try fields.toOwnedSlice(allocator);
+    }
+
+    pub fn fromVariable(self: anytype, allocator: Allocator) !Type {
+        return Type.from(&self.getType(), allocator);
+    }
 };
 
 pub const Variable = struct {
     name: []const u8,
     type: Type,
-    userAttributes: ?[]Attribute,
-};
-
-pub const VariableLayout = struct {
-    variable: ?Variable,
-    typeLayout: TypeLayout,
 
     bindingIndex: u32,
     bindingSpace: u32,
@@ -212,297 +343,83 @@ pub const VariableLayout = struct {
     stride: usize,
 
     category: slang.ParameterCategory,
+
+    pub fn fromLayout(self: *const slang.VariableLayoutReflection, allocator: Allocator) !Variable {
+        return Variable{
+            .name = try allocator.dupe(u8, self.getName()),
+            .bindingIndex = self.getBindingIndex(),
+            .bindingSpace = self.getBindingSpace(),
+            .offset = self.getOffset(self.getCategory()),
+            .size = self.getType().getSize(self.getCategory()),
+            .stride = self.getType().getElementStride(self.getCategory()),
+            .category = self.getCategory(),
+            .type = try Type.from(&self.getType(), allocator),
+        };
+    }
 };
 
-pub const Argument = union(enum) {
-    Int: i32,
-    Float: f32,
-    Bool: bool,
-    String: []const u8,
-};
+pub const VariableWithAnnotation = struct {
+    variable: Variable,
+    annotation: ?[]Annotation,
 
-pub const Attribute = struct {
-    name: []const u8,
-    args: []Argument,
+    pub fn from(self: *const slang.VariableLayoutReflection, allocator: Allocator) anyerror!VariableWithAnnotation {
+        const v = VariableWithAnnotation{
+            .variable = try Variable.from(self, allocator),
+            .annotation = try VariableWithAnnotation.getAnnotation(self.getVariable(), allocator),
+        };
+
+        return v;
+    }
+
+    pub fn getAnnotation(self: *const slang.VariableReflection, allocator: Allocator) ![]Annotation {
+        return try Annotation.fromList(allocator, self.ptr, self.getUserAttributeCount(), slang.VariableReflection_getUserAttributeByIndex);
+    }
 };
 
 pub const Function = struct {
     name: []const u8,
-    parameters: []Variable,
-    userAttributes: []Attribute,
+    parameters: []Type,
+    annotation: []Annotation,
+
+    pub fn from(self: *const slang.FunctionReflection, allocator: Allocator) !Function {
+        return .{
+            .name = try allocator.dupe(u8, self.getName()),
+            .parameters = try Function.getParameters(self, allocator),
+            .annotation = try Function.getAnnotation(self, allocator),
+        };
+    }
+
+    pub fn getParameters(self: *const slang.FunctionReflection, allocator: Allocator) ![]Type {
+        var parameters = try std.ArrayList(Type).initCapacity(allocator, self.getParameterCount());
+        defer parameters.deinit(allocator);
+
+        for (0..parameters.capacity) |i| {
+            parameters.appendAssumeCapacity(try Type.fromVariable(&self.getParameterByIndex(@intCast(i)), allocator));
+        }
+        return try parameters.toOwnedSlice(allocator);
+    }
+
+    pub fn getAnnotation(self: *const slang.FunctionReflection, allocator: Allocator) ![]Annotation {
+        return Annotation.fromList(allocator, self.ptr, self.getUserAttributeCount(), slang.FunctionReflection_getUserAttributeByIndex);
+    }
 };
 
-pub fn getFunctionUserAttributes(self: *const slang.FunctionReflection, allocator: Allocator) ![]Attribute {
-    var userAttributes = try std.ArrayList(Attribute).initCapacity(allocator, self.getUserAttributeCount());
-    defer userAttributes.deinit(allocator);
-
-    for (0..userAttributes.capacity) |i| {
-        userAttributes.appendAssumeCapacity(try toAttribute(&self.getUserAttributeByIndex(@intCast(i)), allocator));
-    }
-    return try userAttributes.toOwnedSlice(allocator);
-}
-
-pub fn getFunctionParameters(self: *const slang.FunctionReflection, allocator: Allocator) ![]Variable {
-    var parameters = try std.ArrayList(Variable).initCapacity(allocator, self.getParameterCount());
-    defer parameters.deinit(allocator);
-
-    for (0..parameters.capacity) |i| {
-        parameters.appendAssumeCapacity(try variableToObject(&self.getParameterByIndex(@intCast(i)), allocator));
-    }
-    return try parameters.toOwnedSlice(allocator);
-}
-
-pub fn getFields(self: *const slang.TypeReflection, allocator: Allocator) anyerror![]Variable {
-    var fields = try std.ArrayList(Variable).initCapacity(allocator, self.getFieldCount());
+pub fn getFieldsLayout(self: *const slang.TypeLayoutReflection, allocator: Allocator) ![]VariableWithAnnotation {
+    var fields = try std.ArrayList(VariableWithAnnotation).initCapacity(allocator, self.getFieldCount());
     for (0..fields.capacity) |i| {
-        fields.appendAssumeCapacity(try variableToObject(&self.getFieldByIndex(@intCast(i)), allocator));
+        fields.appendAssumeCapacity(try VariableWithAnnotation.from(&self.getFieldByIndex(@intCast(i)), allocator));
     }
     return try fields.toOwnedSlice(allocator);
-}
-
-pub fn getArguments(self: *const slang.AttributeReflection, allocator: Allocator) ![]Argument {
-    var args = try std.ArrayList(Argument).initCapacity(allocator, self.getArgumentCount());
-    defer args.deinit(allocator);
-
-    for (0..args.capacity) |iu| {
-        const i: u32 = @intCast(iu);
-        switch (self.getArgumentType(i).getScalarType()) {
-            .INT8, .INT16, .INT32, .INT64 => {
-                args.appendAssumeCapacity(.{ .Int = try self.getArgumentValueInt(i) });
-            },
-            .FLOAT16, .FLOAT32, .FLOAT64 => {
-                args.appendAssumeCapacity(.{ .Float = try self.getArgumentValueFloat(i) });
-            },
-            .BOOL => {
-                args.appendAssumeCapacity(.{ .Bool = @bitCast(@as(u1, @intCast(try self.getArgumentValueInt(i)))) });
-            },
-            .UINTPTR => {
-                args.appendAssumeCapacity(.{ .String = try allocator.dupe(u8, self.getArgumentValueString(i)) });
-            },
-            else => {
-                std.log.err("Attribute with ScalarType {s} is not supported", .{self.getArgumentType(i).getScalarType().toString()});
-                @panic("Attribute is not supported");
-            },
-        }
-    }
-    return try args.toOwnedSlice(allocator);
-}
-
-pub fn toAttribute(self: *const slang.AttributeReflection, allocator: Allocator) !Attribute {
-    return Attribute{
-        .name = try allocator.dupe(u8, self.getName()),
-        .args = try getArguments(self, allocator),
-    };
-}
-
-pub fn getTypeReflectionUserAttributes(self: *const slang.TypeReflection, allocator: Allocator) !?[]Attribute {
-    if (self.getUserAttributeCount() == 0) {
-        return null;
-    }
-
-    var userAttributes = try std.ArrayList(Attribute).initCapacity(allocator, self.getUserAttributeCount());
-    defer userAttributes.deinit(allocator);
-
-    for (0..userAttributes.capacity) |i| {
-        userAttributes.appendAssumeCapacity(try toAttribute(&self.getUserAttributeByIndex(@intCast(i)), allocator));
-    }
-    return try userAttributes.toOwnedSlice(allocator);
-}
-
-pub fn toType(self: *const slang.TypeReflection, allocator: Allocator) !Type {
-    return switch (self.getKind()) {
-        .SCALAR => .{ .Scalar = .{
-            .type = self.getScalarType(),
-            .userAttributes = try getTypeReflectionUserAttributes(self, allocator),
-        } },
-        .STRUCT => .{ .Structure = .{
-            .name = try allocator.dupe(u8, self.getName()),
-            .fields = try getFields(self, allocator),
-            .userAttributes = try getTypeReflectionUserAttributes(self, allocator),
-        } },
-        .RESOURCE => {
-            const t = try allocator.create(Type);
-            t.* = try toType(&self.getResourceResultType(), allocator);
-            return .{ .Resource = .{
-                .name = try allocator.dupe(u8, self.getName()),
-                .result = t,
-                .access = self.getResourceAccess(),
-                .shape = self.getResourceShape(),
-                .userAttributes = try getTypeReflectionUserAttributes(self, allocator),
-            } };
-        },
-        .ARRAY => {
-            const t = try allocator.create(Type);
-            t.* = try toType(&self.getElementType(), allocator);
-            return .{ .Array = .{
-                .name = try allocator.dupe(u8, self.getName()),
-                .elementType = t,
-                .userAttributes = try getTypeReflectionUserAttributes(self, allocator),
-            } };
-        },
-        .TEXTURE_BUFFER => .{ .Texture = .{
-            .name = try allocator.dupe(u8, self.getName()),
-            .rowCount = self.getRowCount(),
-            .columnCount = self.getColumnCount(),
-            .userAttributes = try getTypeReflectionUserAttributes(self, allocator),
-        } },
-        .NONE => .None,
-        .CONSTANT_BUFFER => {
-            const t = try allocator.create(Type);
-            t.* = try toType(&self.getElementType(), allocator);
-
-            return .{ .ConstantBuffer = .{
-                .name = try allocator.dupe(u8, self.getName()),
-                .type = t,
-                .userAttributes = try getTypeReflectionUserAttributes(self, allocator),
-            } };
-        },
-        .VECTOR => {
-            const t = try allocator.create(Type);
-            t.* = try toType(&self.getElementType(), allocator);
-
-            return .{ .Vector = .{
-                .name = try allocator.dupe(u8, self.getName()),
-                .size = self.getElementCount(),
-                .type = t,
-                .userAttributes = try getTypeReflectionUserAttributes(self, allocator),
-            } };
-        },
-        else => .NotImplemented,
-    };
-}
-
-pub fn getVariableLayoutUserAttributes(self: *const slang.VariableReflection, allocator: Allocator) !?[]Attribute {
-    if (self.getUserAttributeCount() == 0) {
-        return null;
-    }
-
-    var userAttributes = try std.ArrayList(Attribute).initCapacity(allocator, self.getUserAttributeCount());
-    defer userAttributes.deinit(allocator);
-
-    for (0..userAttributes.capacity) |i| {
-        userAttributes.appendAssumeCapacity(try toAttribute(&self.getUserAttributeByIndex(@intCast(i)), allocator));
-    }
-    return try userAttributes.toOwnedSlice(allocator);
-}
-
-pub fn variableToObject(self: *const slang.VariableReflection, allocator: Allocator) anyerror!Variable {
-    const v = Variable{
-        .name = try allocator.dupe(u8, self.getName()),
-        .type = try toType(&self.getType(), allocator),
-        .userAttributes = try getVariableLayoutUserAttributes(self, allocator),
-    };
-
-    return v;
-}
-
-pub fn toVariableLayout(self: *const slang.VariableLayoutReflection, allocator: Allocator) !VariableLayout {
-    return VariableLayout{
-        .variable = if (self.getVariable().ptr == null) null else try variableToObject(&self.getVariable(), allocator),
-        .bindingIndex = self.getBindingIndex(),
-        .bindingSpace = self.getBindingSpace(),
-        .offset = self.getOffset(self.getCategory()),
-        .size = self.getTypeLayout().getSize(self.getCategory()),
-        .stride = self.getTypeLayout().getElementStride(self.getCategory()),
-        .category = self.getCategory(),
-        .typeLayout = try toTypeLayout(&self.getTypeLayout(), allocator),
-    };
-}
-
-pub fn getFieldsLayout(self: *const slang.TypeLayoutReflection, allocator: Allocator) ![]VariableLayout {
-    var fields = try std.ArrayList(VariableLayout).initCapacity(allocator, self.getFieldCount());
-    for (0..fields.capacity) |i| {
-        fields.appendAssumeCapacity(try toVariableLayout(&self.getFieldByIndex(@intCast(i)), allocator));
-    }
-    return try fields.toOwnedSlice(allocator);
-}
-
-pub fn toFunction(self: *const slang.FunctionReflection, allocator: Allocator) !Function {
-    return Function{
-        .name = try allocator.dupe(u8, self.getName()),
-        .parameters = try getFunctionParameters(self, allocator),
-        .userAttributes = try getFunctionUserAttributes(self, allocator),
-    };
-}
-
-pub fn toTypeLayout(self: *const slang.TypeLayoutReflection, allocator: Allocator) anyerror!TypeLayout {
-    return switch (self.getKind()) {
-        .SCALAR => .{ .Scalar = .{
-            .type = self.getScalarType(),
-        } },
-        .STRUCT => .{ .Structure = .{
-            .name = try allocator.dupe(u8, self.getName()),
-            .fields = try getFieldsLayout(self, allocator),
-        } },
-        .RESOURCE => {
-            const t = try allocator.create(Type);
-            t.* = try toType(&self.getResourceResultType(), allocator);
-
-            return .{ .Resource = .{
-                .name = try allocator.dupe(u8, self.getName()),
-                .type = t,
-                .access = self.getResourceAccess(),
-                .shape = self.getResourceShape(),
-            } };
-        },
-        .ARRAY => {
-            const nestedType = try allocator.create(TypeLayout);
-            nestedType.* = try toTypeLayout(&self.getElementTypeLayout(), allocator);
-
-            return .{ .Array = .{
-                .name = try allocator.dupe(u8, self.getName()),
-                .elementType = nestedType,
-            } };
-        },
-        .TEXTURE_BUFFER => .{ .Texture = .{
-            .name = try allocator.dupe(u8, self.getName()),
-            .rowCount = self.getRowCount(),
-            .columnCount = self.getColumnCount(),
-        } },
-        .NONE => .None,
-        .CONSTANT_BUFFER => {
-            const nestedType = try allocator.create(TypeLayout);
-            nestedType.* = try toTypeLayout(&self.getElementTypeLayout(), allocator);
-
-            return .{ .ConstantBuffer = .{
-                .name = try allocator.dupe(u8, self.getName()),
-                .type = nestedType,
-            } };
-        },
-        .PARAMETER_BLOCK => {
-            const nestedType = try allocator.create(TypeLayout);
-            nestedType.* = try toTypeLayout(&self.getElementTypeLayout(), allocator);
-
-            return .{ .ParameterBlock = .{
-                .name = try allocator.dupe(u8, self.getName()),
-                .elementType = nestedType,
-            } };
-        },
-        .VECTOR => {
-            const t = try allocator.create(Type);
-            t.* = try toType(&self.getType().getElementType(), allocator);
-
-            return .{ .Vector = .{
-                .name = try allocator.dupe(u8, self.getName()),
-                .size = self.getType().getElementCount(),
-                .type = t,
-            } };
-        },
-        else => {
-            std.log.err("TypeLayoutReflection::toReflectionObject: type is {}", .{self.getKind()});
-            return .NotImplemented;
-        },
-    };
 }
 
 pub fn bindParam(self: *const slang.Reflection, slotsArr: *AutoHashMap(u32, ArrayList(Binding)), bindingCounts: *BindingCounts, param: slang.VariableLayoutReflection, inSlot: ?u32) !void {
     switch (param.getCategory()) {
         .SUB_ELEMENT_REGISTER_SPACE => {
-            const typeLayout = param.getTypeLayout();
+            const typeLayout = param.getType();
             switch (typeLayout.getKind()) {
                 .PARAMETER_BLOCK => {
-                    for (0..typeLayout.getElementTypeLayout().getFieldCount()) |i| {
-                        try bindParam(self, slotsArr, bindingCounts, typeLayout.getElementTypeLayout().getFieldByIndex(@intCast(i)), inSlot orelse param.getBindingIndex());
+                    for (0..typeLayout.getElementType().getFieldCount()) |i| {
+                        try bindParam(self, slotsArr, bindingCounts, typeLayout.getElementType().getFieldByIndex(@intCast(i)), inSlot orelse param.getBindingIndex());
                     }
                 },
                 else => @panic("unknown"),
@@ -515,14 +432,14 @@ pub fn bindParam(self: *const slang.Reflection, slotsArr: *AutoHashMap(u32, Arra
 
             if (!self.isParameterLocationUsed(.DESCRIPTOR_TABLE_SLOT, slot, index)) return;
 
-            const bindingType: BindingType = switch (param.getTypeLayout().getKind()) {
-                .RESOURCE => switch (param.getTypeLayout().getResourceShape().primitiveShape()) {
+            const bindingType: BindingType = switch (param.getType().getKind()) {
+                .RESOURCE => switch (param.getType().getResourceShape().primitiveShape()) {
                     .SampledTexture => .SampledTexture,
-                    .Texture => switch (param.getTypeLayout().getResourceAccess()) {
+                    .Texture => switch (param.getType().getResourceAccess()) {
                         .SLANG_RESOURCE_ACCESS_WRITE, .SLANG_RESOURCE_ACCESS_READ_WRITE => .ReadWriteStorageTexture,
                         else => .ReadOnlyStorageTexture,
                     },
-                    .StorageBuffer => switch (param.getTypeLayout().getResourceAccess()) {
+                    .StorageBuffer => switch (param.getType().getResourceAccess()) {
                         .SLANG_RESOURCE_ACCESS_WRITE, .SLANG_RESOURCE_ACCESS_READ_WRITE => .ReadWriteStorage,
                         else => .ReadOnlyStorage,
                     },
@@ -534,18 +451,18 @@ pub fn bindParam(self: *const slang.Reflection, slotsArr: *AutoHashMap(u32, Arra
             };
             bindingCounts.add(bindingType);
 
-            const typeLayout = try toTypeLayout(&param.getTypeLayout(), slotsArr.allocator);
-            const userAttributes = try getVariableLayoutUserAttributes(&param.getVariable(), slotsArr.allocator);
+            var binding = Binding.empty(slotsArr.allocator);
+            var fba = FixedBufferAllocator.init(binding.buffer);
+            var allocator = fba.allocator();
 
-            const binding: Binding = .{
-                .name = try slotsArr.allocator.dupe(u8, param.getVariable().getName()),
-                .bindingType = bindingType,
-                .type = typeLayout,
-                .userAttributes = userAttributes,
-            };
+            binding.name = try allocator.dupe(u8, param.getVariable().getName());
+            binding.bindingType = bindingType;
+            binding.type = try Type.from(&param.getType(), allocator);
+            binding.userAttributes = try VariableWithAnnotation.getAnnotation(&param.getVariable(), allocator);
 
             slotsArr.getPtr(slot).?.appendAssumeCapacity(binding);
         },
+        .NONE => {},
         else => @panic("unknown"),
     }
 }
@@ -593,7 +510,24 @@ pub fn toEntry(self: *const slang.Reflection, allocator: Allocator) !Entry {
         .name = try fba_alloc.dupe(u8, entryPoint.getName()),
         .stage = entryPoint.getStage(),
         .workerSize = entryPoint.getWorkerSize(),
-        .function = try toFunction(&entryPoint.getFunction(), fba_alloc),
+        .function = try Function.from(&entryPoint.getFunction(), fba_alloc),
         .bindings = try tallyBindings(self, fba_alloc),
     };
+}
+
+pub fn getUserAttribute(attr: []Annotation, tag: []const u8) ?UserAttribute {
+    for (attr) |a| {
+        if (a == .UserAttribute and std.ascii.ignoreCase(tag, a.UserAttribute.name)) {
+            return a.UserAttribute;
+        }
+    }
+    return null;
+}
+
+pub fn getAnnotation(attr: []Annotation, comptime tag: std.meta.Tag(Annotation)) ?std.meta.TagPayload(Annotation, tag) {
+    for (attr) |a| switch (a) {
+        tag => |payload| return payload,
+        else => {},
+    };
+    return null;
 }
