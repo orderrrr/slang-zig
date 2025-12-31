@@ -618,6 +618,27 @@ pub const ScalarType = enum(c.SlangScalarTypeIntegral) {
             .UINTPTR => "UINTPTR",
         };
     }
+
+    pub fn sizeOf(self: ScalarType) usize {
+        return switch (self) {
+            .NONE => 0,
+            .VOID => 0,
+            .BOOL => 1,
+            .INT32 => 4,
+            .UINT32 => 4,
+            .INT64 => 8,
+            .UINT64 => 8,
+            .FLOAT16 => 2,
+            .FLOAT32 => 4,
+            .FLOAT64 => 8,
+            .INT8 => 1,
+            .UINT8 => 1,
+            .INT16 => 2,
+            .UINT16 => 2,
+            .INTPTR => 8,
+            .UINTPTR => 8,
+        };
+    }
 };
 
 pub const ResourceShape = enum(c.SlangResourceShapeIntegral) {

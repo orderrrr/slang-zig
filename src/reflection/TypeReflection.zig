@@ -1,8 +1,6 @@
 const std = @import("std");
 const lib = @import("../lib.zig");
 
-const TypeLayoutReflection = @import("TypeLayoutReflection.zig");
-
 const VariableLayoutReflection = @import("VariableLayoutReflection.zig");
 const VariableLayout = VariableLayoutReflection.VariableLayout;
 

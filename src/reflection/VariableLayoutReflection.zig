@@ -37,13 +37,13 @@ pub fn getCategoryByIndex(self: *const Self, index: u32) lib.ParameterCategory {
 pub fn getOffset(self: *const Self, category: lib.ParameterCategory) usize {
     return lib.VariableLayoutReflection_getOffset(self.ptr, category);
 }
-// pub fn getType(self: *const Self) ?TypeReflection {
-//     if (self.getVariable() == null) {
-//         return null;
-//     }
-//
-//     return TypeReflection{ .ptr = lib.VariableLayoutReflection_getType(self.ptr) };
-// }
+pub fn getTypeAlt(self: *const Self) ?TypeReflection {
+    if (self.getVariable().ptr == null) {
+        return null;
+    }
+
+    return TypeReflection{ .ptr = lib.VariableLayoutReflection_getType(self.ptr) };
+}
 pub fn getBindingIndex(self: *const Self) u32 {
     return lib.VariableLayoutReflection_getBindingIndex(self.ptr);
 }
