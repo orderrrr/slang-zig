@@ -49,7 +49,7 @@ pub fn unwrapArray(self: *const Self) lib.TypeLayoutReflection {
     return lib.TypeLayoutReflection_unwrapArray(self.ptr);
 }
 
-pub fn getElementCount(self: *const Self, reflection: lib.ShaderReflection) u32 {
+pub fn getElementCount(self: *const Self, reflection: lib.ShaderReflectionPtr) u32 {
     return lib.TypeLayoutReflection_getElementCount(self.ptr, reflection);
 }
 
@@ -61,15 +61,15 @@ pub fn getElementStride(self: *const Self, category: lib.ParameterCategory) usiz
     return lib.TypeLayoutReflection_getElementStride(self.ptr, category);
 }
 
-pub fn getElementTypeLayout(self: *const Self) Self {
+pub fn getElementType(self: *const Self) Self {
     return .{ .ptr = lib.TypeLayoutReflection_getElementTypeLayout(self.ptr) };
 }
 
-pub fn getElementVarLayout(self: *const Self) lib.VariableLayoutReflection {
+pub fn getElementVar(self: *const Self) lib.VariableLayoutReflection {
     return lib.TypeLayoutReflection_getElementVarLayout(self.ptr);
 }
 
-pub fn getContainerVarLayout(self: *const Self) lib.VariableLayoutReflection {
+pub fn getContainerVar(self: *const Self) lib.VariableLayoutReflection {
     return lib.TypeLayoutReflection_getContainerVarLayout(self.ptr);
 }
 
@@ -113,7 +113,7 @@ pub fn getName(self: *const Self) []const u8 {
     return lib.TypeLayoutReflection_getName(self.ptr);
 }
 
-pub fn getMatrixLayoutMode(self: *const Self) lib.MatrixLayoutMode {
+pub fn getMatrixMode(self: *const Self) lib.MatrixLayoutMode {
     return lib.TypeLayoutReflection_getMatrixLayoutMode(self.ptr);
 }
 
@@ -145,7 +145,7 @@ pub fn getExplicitCounterBindingRangeOffset(self: *const Self) i64 {
     return lib.TypeLayoutReflection_getExplicitCounterBindingRangeOffset(self.ptr);
 }
 
-pub fn getBindingRangeLeafTypeLayout(self: *const Self, index: i64) Self {
+pub fn getBindingRangeLeafType(self: *const Self, index: i64) Self {
     return .{ .ptr = lib.TypeLayoutReflection_getBindingRangeLeafTypeLayout(self.ptr, index) };
 }
 

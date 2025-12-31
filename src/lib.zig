@@ -995,16 +995,16 @@ pub fn TypeReflection_getUserAttributeCount(typeLayout: TypeReflectionPtr) u32 {
     return c.TypeReflection_getUserAttributeCount(typeLayout);
 }
 
-pub fn TypeReflection_getUserAttributeByIndex(typeLayout: c.TypeReflectionPtr, index: u32) AttributeReflectionPtr {
-    return c.TypeReflection_getUserAttributeByIndex(typeLayout, @intCast(index));
+pub fn TypeReflection_getUserAttributeByIndex(typeLayout: c.TypeReflectionPtr, index: u32) AttributeReflection {
+    return .{ .ptr = c.TypeReflection_getUserAttributeByIndex(typeLayout, @intCast(index)) };
 }
 
-pub fn TypeReflection_findUserAttributeByName(typeLayout: c.TypeReflectionPtr, name: []const u8) AttributeReflectionPtr {
-    return c.TypeReflection_findUserAttributeByName(typeLayout, @ptrCast(name.ptr));
+pub fn TypeReflection_findUserAttributeByName(typeLayout: c.TypeReflectionPtr, name: []const u8) AttributeReflection {
+    return .{ .ptr = c.TypeReflection_findUserAttributeByName(typeLayout, @ptrCast(name.ptr)) };
 }
 
-pub fn TypeReflection_findAttributeByName(typeLayout: c.TypeReflectionPtr, name: []const u8) AttributeReflectionPtr {
-    return c.TypeReflection_findAttributeByName(typeLayout, @ptrCast(name.ptr));
+pub fn TypeReflection_findAttributeByName(typeLayout: c.TypeReflectionPtr, name: []const u8) AttributeReflection {
+    return .{ .ptr = c.TypeReflection_findAttributeByName(typeLayout, @ptrCast(name.ptr)) };
 }
 
 pub fn TypeReflection_getGenericCountainer(typeLayout: TypeReflectionPtr) GenericReflectionPtr {
@@ -1029,16 +1029,16 @@ pub fn VariableReflection_getUserAttributeCount(variable: VariableReflectionPtr)
     return @intCast(c.VariableReflection_getUserAttributeCount(variable));
 }
 
-pub fn VariableReflection_getUserAttributeByIndex(variable: c.VariableReflectionPtr, index: u32) AttributeReflectionPtr {
-    return c.VariableReflection_getUserAttributeByIndex(variable, @intCast(index));
+pub fn VariableReflection_getUserAttributeByIndex(variable: c.VariableReflectionPtr, index: u32) AttributeReflection {
+    return .{ .ptr = c.VariableReflection_getUserAttributeByIndex(variable, @intCast(index)) };
 }
 
-pub fn VariableReflection_findAttributeByName(variable: VariableReflectionPtr, inSession: IGlobalSession, name: []const u8) AttributeReflectionPtr {
-    return c.VariableReflection_findAttributeByName(variable, inSession, @ptrCast(name.ptr));
+pub fn VariableReflection_findAttributeByName(variable: VariableReflectionPtr, inSession: IGlobalSession, name: []const u8) AttributeReflection {
+    return .{ .ptr = c.VariableReflection_findAttributeByName(variable, inSession, @ptrCast(name.ptr)) };
 }
 
-pub fn VariableReflection_findUserAttributeByName(variable: VariableReflectionPtr, inSession: IGlobalSession, name: []const u8) AttributeReflectionPtr {
-    return c.VariableReflection_findUserAttributeByName(variable, inSession, @ptrCast(name.ptr));
+pub fn VariableReflection_findUserAttributeByName(variable: VariableReflectionPtr, inSession: IGlobalSession, name: []const u8) AttributeReflection {
+    return .{ .ptr = c.VariableReflection_findUserAttributeByName(variable, inSession, @ptrCast(name.ptr)) };
 }
 
 pub fn VariableReflection_hasDefaultValue(variable: VariableReflectionPtr) bool {
@@ -1384,12 +1384,12 @@ pub fn FunctionReflection_getUserAttributeCount(self: FunctionReflectionPtr) u32
     return c.FunctionReflection_getUserAttributeCount(self);
 }
 
-pub fn FunctionReflection_getUserAttributeByIndex(self: FunctionReflectionPtr, index: u32) AttributeReflectionPtr {
-    return c.FunctionReflection_getUserAttributeByIndex(self, index);
+pub fn FunctionReflection_getUserAttributeByIndex(self: FunctionReflectionPtr, index: u32) AttributeReflection {
+    return .{ .ptr = c.FunctionReflection_getUserAttributeByIndex(self, index) };
 }
 
-pub fn FunctionReflection_findAttributeByName(self: FunctionReflectionPtr, name: []const u8) AttributeReflectionPtr {
-    return c.FunctionReflection_findAttributeByName(self, name.ptr);
+pub fn FunctionReflection_findAttributeByName(self: FunctionReflectionPtr, name: []const u8) AttributeReflection {
+    return .{ .ptr = c.FunctionReflection_findAttributeByName(self, name.ptr) };
 }
 
 pub fn FunctionReflection_findModifier(self: FunctionReflectionPtr, id: ModifierID) Modifier {

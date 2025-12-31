@@ -22,7 +22,7 @@ pub fn getName(self: *const Self) []const u8 {
 pub fn findModifier(self: *const Self, id: lib.ModifierID) lib.Modifier {
     return lib.VariableLayoutReflection_findModifier(self.ptr, id);
 }
-pub fn getTypeLayout(self: *const Self) TypeLayoutReflection {
+pub fn getType(self: *const Self) TypeLayoutReflection {
     return .{ .ptr = lib.VariableLayoutReflection_getTypeLayout(self.ptr) };
 }
 pub fn getCategory(self: *const Self) lib.ParameterCategory {
@@ -37,13 +37,13 @@ pub fn getCategoryByIndex(self: *const Self, index: u32) lib.ParameterCategory {
 pub fn getOffset(self: *const Self, category: lib.ParameterCategory) usize {
     return lib.VariableLayoutReflection_getOffset(self.ptr, category);
 }
-pub fn getType(self: *const Self) ?TypeReflection {
-    if (self.getVariable() == null) {
-        return null;
-    }
-
-    return TypeReflection{ .ptr = lib.VariableLayoutReflection_getType(self.ptr) };
-}
+// pub fn getType(self: *const Self) ?TypeReflection {
+//     if (self.getVariable() == null) {
+//         return null;
+//     }
+//
+//     return TypeReflection{ .ptr = lib.VariableLayoutReflection_getType(self.ptr) };
+// }
 pub fn getBindingIndex(self: *const Self) u32 {
     return lib.VariableLayoutReflection_getBindingIndex(self.ptr);
 }
