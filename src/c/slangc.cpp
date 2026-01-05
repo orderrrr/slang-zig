@@ -1,4 +1,4 @@
-#include "/Users/nmcintosh/.bin/slang/include/slang.h"
+#include "slang.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
