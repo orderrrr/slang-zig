@@ -707,13 +707,17 @@ pub const ResourceShape = enum(c.SlangResourceShapeIntegral) {
             => return .Texture,
             .SLANG_BYTE_ADDRESS_BUFFER => .ByteAddressBuffer,
             .SLANG_STRUCTURED_BUFFER => .StorageBuffer,
+            .SLANG_RESOURCE_NONE => .Unknown,
             _ => {
                 const shape = @intFromEnum(self);
                 if (shape & @intFromEnum(ResourceShape.SLANG_TEXTURE_MULTISAMPLE_FLAG) != 0) return .SampledTexture;
                 if (shape & @intFromEnum(ResourceShape.SLANG_TEXTURE_COMBINED_FLAG) != 0) return .SampledTexture;
                 @panic("unknown shape");
             },
-            else => @panic("unknown shape"),
+            else => {
+                std.log.err("unknown shape: {}", .{self});
+                @panic("unknown shape");
+            },
         };
     }
 };
