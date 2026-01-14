@@ -112,20 +112,19 @@ pub fn main() !void {
         assert(slang.getBlobSlice(diagnostics, &diag).isSuccess());
     }
 
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
+    var buf: [64 * 1024]u8 = undefined;
+    var fba = std.heap.FixedBufferAllocator.init(&buf);
+    const allocator = fba.allocator();
 
     const reflection: slang.Reflection = .{ .ptr = layout, .metadata = entryPointMetadata };
 
-    const reflectionObj = try refl.toEntry(&reflection, gpa.allocator());
-    defer gpa.allocator().free(reflectionObj.allocator.buffer);
+    const reflectionObj: refl.Reflection = try refl.Reflection.init(reflection, 0, allocator);
 
     const fmt = std.json.fmt(reflectionObj, .{ .whitespace = .indent_2, .emit_null_optional_fields = false });
-    var writer = std.Io.Writer.Allocating.init(gpa.allocator());
+    var writer = std.Io.Writer.Allocating.init(allocator);
     try fmt.format(&writer.writer);
 
     const json_string = try writer.toOwnedSlice();
-    defer gpa.allocator().free(json_string);
 
     std.log.debug("Entry: {s}", .{json_string});
 }
