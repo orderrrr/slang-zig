@@ -1,7 +1,7 @@
 const std = @import("std");
 const assert = std.debug.assert;
 
-const c = @cImport({
+pub const c = @cImport({
     @cInclude("c/slangc.h");
 });
 
