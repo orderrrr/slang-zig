@@ -39,19 +39,16 @@ pub fn build(b: *std.Build) void {
         .root_module = lib_mod,
     });
 
-    lib.linkLibC();
-    lib.linkLibCpp();
+    lib.root_module.link_libc = true;
+    lib.root_module.link_libcpp = true;
 
-    lib.addIncludePath(include_path);
-    lib.addIncludePath(b.path("src"));
-    lib.addIncludePath(b.path("src/c"));
-    lib.addLibraryPath(lib_path);
-    lib.addLibraryPath(bin_path);
-    lib.linkSystemLibrary("slang");
-    lib.addCSourceFiles(.{
-        .files = &.{"src/c/slangc.cpp"},
-        .flags = &.{"-std=c++17"},
-    });
+    lib.root_module.addIncludePath(include_path);
+    lib.root_module.addIncludePath(b.path("src"));
+    lib.root_module.addIncludePath(b.path("src/c"));
+    lib.root_module.addLibraryPath(lib_path);
+    lib.root_module.addLibraryPath(bin_path);
+    lib.root_module.linkSystemLibrary("slang", .{});
+    lib.root_module.addCSourceFile(.{ .file = b.path("src/c/slangc.cpp"), .flags = &.{"-std=c++17"} });
 
     b.installArtifact(lib);
     // Copy Slang shared libraries to the install directory
@@ -79,12 +76,12 @@ pub fn build(b: *std.Build) void {
         .root_module = exe_mod,
     });
 
-    exe.addLibraryPath(lib_path);
-    exe.addLibraryPath(bin_path);
+    exe_mod.addLibraryPath(lib_path);
+    exe_mod.addLibraryPath(bin_path);
 
     exe_mod.addImport("slang", lib.root_module);
 
-    exe.linkLibrary(lib);
+    exe_mod.linkLibrary(lib);
     b.installArtifact(exe);
 
     const run_example_cmd = b.addRunArtifact(exe);
