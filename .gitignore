@@ -3,3 +3,4 @@ debug
 zig-out
 .DS_Store
 run.sh
+zig-pkg
