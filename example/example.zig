@@ -11,7 +11,7 @@ pub fn main() !void {
     const spirv_target_version: []const u8 = "spirv_1_3";
     const target = slang.TargetDesc.fromSpec(.{
         .format = slang.CompileTarget.SPIRV,
-        .profile = slang.findProfile(slang.gs, spirv_target_version),
+        .profile = slang.findProfile(slang.globalSession(), spirv_target_version),
     });
     const sessionDesc = slang.SessionDesc.fromSpec(.{
         .compilerOptionEntries = @ptrCast(@constCast(&optimizationLevel)),
@@ -70,7 +70,7 @@ pub fn main() !void {
     ;
 
     var ss = std.mem.zeroes(slang.ISession);
-    assert(slang.createSession(slang.gs, &sessionDesc, &ss).isSuccess());
+    assert(slang.createSession(slang.globalSession(), &sessionDesc, &ss).isSuccess());
     defer _ = slang.release(ss);
 
     var diagnostics = std.mem.zeroes(slang.IBlob);

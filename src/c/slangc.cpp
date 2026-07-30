@@ -7,12 +7,29 @@ namespace slangc {
 #include "slangc_types.h"
 } // namespace slangc
 
+static slang::IGlobalSession *g_globalSession = nullptr;
+
 extern "C" {
-slangc::SlangResult
-createGlobalSession(slangc::IGlobalSession *outGlobalSession) {
-  slang::IGlobalSession **globalSession =
-      (slang::IGlobalSession **)outGlobalSession;
-  return slang_createGlobalSession(SLANG_API_VERSION, globalSession);
+slangc::SlangResult initGlobalSession(void) {
+  // Separate app, asset baker, and test entry points each initialize Slang, and
+  // tests may initialize repeatedly in one process. Replacing the session
+  // would leak the first one.
+  if (g_globalSession != nullptr) {
+    return SLANG_OK;
+  }
+  return slang_createGlobalSession(SLANG_API_VERSION, &g_globalSession);
+}
+
+slangc::IGlobalSession getGlobalSession(void) {
+  return (slangc::IGlobalSession)g_globalSession;
+}
+
+void releaseGlobalSession(void) {
+  if (g_globalSession == nullptr) {
+    return;
+  }
+  g_globalSession->release();
+  g_globalSession = nullptr;
 }
 
 slangc::SlangResult createSession(slangc::IGlobalSession inGlobalSession,

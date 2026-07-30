@@ -15,8 +15,6 @@ pub const FunctionReflection = @import("./reflection/FunctionReflection.zig");
 pub const EntryPointReflection = @import("./reflection/EntryPointReflection.zig");
 pub const AttributeReflection = @import("./reflection/AttributeReflection.zig");
 
-pub var gs = std.mem.zeroes(c.IGlobalSession);
-
 pub const IGlobalSession = c.IGlobalSession;
 pub const ISession = c.ISession;
 pub const IModule = c.IModule;
@@ -770,12 +768,15 @@ pub const BindingType = enum(c.SlangBindingTypeIntegral) {
     SLANG_BINDING_TYPE_EXT_MASK = 0xFF00,
 };
 
-pub fn createGlobalSession(globalSession: *c.IGlobalSession) SlangResult {
-    return @enumFromInt(c.createGlobalSession(globalSession));
+/// Return the library-owned global session.
+///
+/// The library owns its lifetime, so callers never store or pass it.
+pub fn globalSession() IGlobalSession {
+    return c.getGlobalSession();
 }
 
-pub fn createSession(globalSession: c.IGlobalSession, sessionDesc: *const c.SessionDesc, session: *c.ISession) SlangResult {
-    return @enumFromInt(c.createSession(globalSession, sessionDesc, session));
+pub fn createSession(global_session: c.IGlobalSession, sessionDesc: *const c.SessionDesc, session: *c.ISession) SlangResult {
+    return @enumFromInt(c.createSession(global_session, sessionDesc, session));
 }
 
 pub fn loadModuleFromSourceString(ss: c.ISession, sourceBuffer: []const u8, outModule: *c.IModule, outDiagnostics: *c.IBlob) SlangResult {
@@ -1451,12 +1452,11 @@ pub fn release(unknown: Unknown) SlangResult {
 }
 
 pub fn init() void {
-    gs = std.mem.zeroes(c.IGlobalSession);
-    assert(createGlobalSession(&gs).isSuccess());
+    assert(@as(SlangResult, @enumFromInt(c.initGlobalSession())).isSuccess());
 }
 
 pub fn deinit() void {
-    _ = c.release(gs);
+    c.releaseGlobalSession();
 }
 
 pub fn IModule_findEntryPointByName(inModule: IModule, name: []const u8, entryPoint: *IEntryPoint) SlangResult {

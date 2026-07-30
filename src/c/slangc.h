@@ -3,7 +3,11 @@
 
 typedef int32_t SlangResult;
 
-SlangResult createGlobalSession(IGlobalSession *outGlobalSession);
+// The library owns the process-wide global session so consumers never hold its
+// pointer and hot-reload dylibs sharing these entry points reuse the host session.
+SlangResult initGlobalSession(void);
+IGlobalSession getGlobalSession(void);
+void releaseGlobalSession(void);
 
 SlangResult createSession(IGlobalSession inGlobalSession,
                           const struct SessionDesc *inSessionDesc,
