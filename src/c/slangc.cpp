@@ -11,9 +11,7 @@ static slang::IGlobalSession *g_globalSession = nullptr;
 
 extern "C" {
 slangc::SlangResult initGlobalSession(void) {
-  // Separate app, asset baker, and test entry points each initialize Slang, and
-  // tests may initialize repeatedly in one process. Replacing the session
-  // would leak the first one.
+  // Tests may reinitialize Slang; replacing the session would leak it.
   if (g_globalSession != nullptr) {
     return SLANG_OK;
   }

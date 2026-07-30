@@ -768,9 +768,7 @@ pub const BindingType = enum(c.SlangBindingTypeIntegral) {
     SLANG_BINDING_TYPE_EXT_MASK = 0xFF00,
 };
 
-/// Return the library-owned global session.
-///
-/// The library owns its lifetime, so callers never store or pass it.
+/// Return the library-owned global session; callers must not retain it.
 pub fn globalSession() IGlobalSession {
     return c.getGlobalSession();
 }
