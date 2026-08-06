@@ -1490,7 +1490,7 @@ pub fn IModule_getUniqueIdentity(inModule: IModule) []const u8 {
 }
 
 pub fn IModule_findAndCheckEntryPoint(inModule: IModule, name: []const u8, stage: Stage, outEntryPoint: *IEntryPoint, outDiagnostics: *IBlob) SlangResult {
-    return @intFromEnum(c.IModule_findAndCheckEntryPoint(inModule, name, @intFromEnum(stage), outEntryPoint, outDiagnostics));
+    return @enumFromInt(c.IModule_findAndCheckEntryPoint(inModule, name.ptr, @intFromEnum(stage), outEntryPoint, outDiagnostics));
 }
 
 pub fn IModule_getDependencyFileCount(inModule: IModule) i32 {
