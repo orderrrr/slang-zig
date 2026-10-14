@@ -1,9 +1,7 @@
 const std = @import("std");
 const assert = std.debug.assert;
 
-pub const c = @cImport({
-    @cInclude("c/slangc.h");
-});
+pub const c = @import("slang_c");
 
 pub const Reflection = @import("./reflection/Reflection.zig");
 pub const VariableReflection = @import("./reflection/VariableReflection.zig");

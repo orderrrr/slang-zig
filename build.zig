@@ -1,4 +1,5 @@
 const std = @import("std");
+const Translator = @import("translate_c").Translator;
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -15,6 +16,19 @@ pub fn build(b: *std.Build) void {
     lib_mod.addIncludePath(b.path("src/c"));
     lib_mod.addCSourceFile(.{ .file = b.path("src/c/slangc.cpp"), .flags = &.{"-std=c++17"} });
     lib_mod.linkSystemLibrary("slang", .{});
+
+    // Zig 0.17 removes @cImport; the C API is translated at build time and also
+    // exposed as `slang_c` for consumers that build their own types-only module.
+    const translator: Translator = .init(b.dependency("translate_c", .{}), .{
+        .name = "slang_c",
+        .default_init = true, // matches @cImport, which callers rely on
+        .c_source_file = b.path("src/c/slangc.h"),
+        .target = target,
+        .optimize = optimize,
+    });
+    translator.addIncludePath(b.path("src/c"));
+    lib_mod.addImport("slang_c", translator.mod);
+    b.modules.put(b.graph.arena, "slang_c", translator.mod) catch @panic("OOM");
 
     const lib = b.addLibrary(.{
         .name = "slang",
